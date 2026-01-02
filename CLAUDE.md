@@ -27,6 +27,28 @@ A beautiful Flutter weather app with dynamic gradient backgrounds and 3D city la
 - Location: geolocator, geocoding
 - Storage: Hive, shared_preferences
 
+## API Strategy
+**Current:** Open-Meteo (free, 10k req/day)
+- ✅ Current, hourly, daily forecast (16 days)
+- ✅ Air Quality, UV Index
+- ❌ Minute-by-minute, Weather alerts, Radar
+
+**Architecture:** Repository Pattern for easy API switching
+```
+WeatherRepository (abstract)
+       │
+   ┌───┴───┐
+   ▼       ▼
+OpenMeteo  Tomorrow.io (future)
+```
+
+**Upgrade Path:**
+- MVP → v1: Open-Meteo (free)
+- Pro tier: Add Tomorrow.io/OpenWeather for alerts
+- Scale: Cloudflare Worker proxy with caching
+
+**To switch APIs:** Create new service, map to same Weather model, change DI. Effort: 2-4 hours
+
 ## Project Structure
 ```
 lib/
@@ -46,9 +68,10 @@ lib/
 
 ## Phase 1 Tasks (Next)
 1. Weather Data Layer
-   - Open-Meteo API integration
+   - **Repository pattern** (WeatherRepository abstract class)
+   - Open-Meteo API integration (OpenMeteoWeatherService)
    - Location service (GPS + search)
-   - Weather model classes
+   - Weather model classes (freezed)
    - Riverpod providers
 
 2. Core UI
