@@ -1,0 +1,74 @@
+name: ha_weather_app
+description: "A beautiful weather app with dynamic backgrounds and 3D landmarks."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Animations
+  flutter_animate: ^4.5.2
+  rive: ^0.14.0
+  lottie: ^3.3.1
+
+  # Networking & API
+  dio: ^5.8.0
+  retrofit: ^4.4.2
+
+  # Location Services
+  geolocator: ^13.0.3
+  geocoding: ^3.0.0
+
+  # Local Storage
+  shared_preferences: ^2.5.3
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # UI Components
+  google_fonts: ^6.2.1
+  shimmer: ^3.0.0
+
+  # Utilities
+  intl: ^0.20.2
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+  equatable: ^2.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # Code Generation
+  build_runner: ^2.4.14
+  riverpod_generator: ^2.6.3
+  freezed: ^3.0.5
+  json_serializable: ^6.9.4
+  retrofit_generator: ^9.1.7
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/animations/
+    - assets/landmarks/
+
+  # fonts:
+  #   - family: Inter
+  #     fonts:
+  #       - asset: fonts/Inter-Regular.ttf
+  #       - asset: fonts/Inter-SemiBold.ttf
+  #         weight: 600
+  #       - asset: fonts/Inter-Bold.ttf
+  #         weight: 700
