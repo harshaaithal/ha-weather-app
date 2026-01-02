@@ -23,7 +23,10 @@ A beautiful Flutter weather app with dynamic gradient backgrounds and 3D city la
   - 2.2 Animations (screen transitions, pull-to-refresh landmark spin)
   - 2.3 Expanded weather themes (19 conditions with smart resolver)
   - 2.4 Polish gaps (border radius, line icons, custom widgets)
-- **Phase 3:** NEXT (3D Assets)
+- **Phase 3:** IN PROGRESS (3D Assets)
+  - Asset folder structure created
+  - Midjourney prompts provided for 38 images (30 cities + 8 fallbacks)
+  - Awaiting user to generate landmark images
 
 ## Tech Stack
 - Flutter 3.38.5
@@ -99,3 +102,31 @@ flutter run
 # Generate code (freezed, json_serializable, riverpod)
 dart run build_runner build --delete-conflicting-outputs
 ```
+
+## Session Log
+
+### 2026-01-02 (Session 2)
+**Completed:**
+- Phase 2.3: Expanded weather themes from 5 to 19 conditions
+  - Added hot, cold, windy, night variants
+  - Created `resolvedCondition` getter for smart theme selection based on temp/wind/time
+- Phase 2.4: Polish gaps
+  - Created `weather_icons.dart` with 20+ custom 1.5px stroke icons (CustomPainter)
+  - Replaced all Material Icons with custom WeatherIcons
+  - Replaced IconButton with GestureDetector + custom styling
+  - Updated card border radius from 16px to 32px
+  - Fixed all `withOpacity` deprecation warnings → `withValues(alpha:)`
+- Phase 3 setup:
+  - Created `assets/landmarks/cities/` and `assets/landmarks/fallbacks/` folders
+  - Updated pubspec.yaml with asset paths
+  - Provided 38 Midjourney prompts for landmark images
+
+**Commits:**
+- `cbaf4c2` - feat: add custom line icons and expand weather themes (Phase 2.3-2.4)
+- `cea8874` - chore: setup landmark asset folders for Phase 3
+
+**Next Steps:**
+1. User generates 38 landmark images using Midjourney prompts
+2. Place images in `assets/landmarks/cities/` and `assets/landmarks/fallbacks/`
+3. Build asset loading system and city→landmark mapping logic
+4. Integrate landmarks with weather screen (replace placeholder)
