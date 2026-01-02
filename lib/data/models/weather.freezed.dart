@@ -223,8 +223,8 @@ return $default(_that.current,_that.hourly,_that.daily,_that.location);case _:
 /// @nodoc
 @JsonSerializable()
 
-class _Weather implements Weather {
-  const _Weather({required this.current, required final  List<HourlyWeather> hourly, required final  List<DailyWeather> daily, required this.location}): _hourly = hourly,_daily = daily;
+class _Weather extends Weather {
+  const _Weather({required this.current, required final  List<HourlyWeather> hourly, required final  List<DailyWeather> daily, required this.location}): _hourly = hourly,_daily = daily,super._();
   factory _Weather.fromJson(Map<String, dynamic> json) => _$WeatherFromJson(json);
 
 @override final  CurrentWeather current;

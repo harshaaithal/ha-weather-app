@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/theme/weather_icons.dart';
 import '../../data/models/weather.dart';
 
 /// 7-day forecast list.
@@ -65,8 +66,8 @@ class _DailyRow extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: textColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        color: textColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(32),
       ),
       child: Row(
         children: [
@@ -79,21 +80,20 @@ class _DailyRow extends StatelessWidget {
             ),
           ),
           // Weather icon
-          Icon(
-            _getWeatherIcon(day.weatherCode),
-            color: textColor,
+          WeatherIcons.fromWeatherCode(
+            day.weatherCode,
             size: 24,
+            color: textColor,
           ),
           const SizedBox(width: 12),
           // Precipitation probability
           SizedBox(
-            width: 45,
+            width: 55,
             child: Row(
               children: [
-                Icon(
-                  Icons.water_drop,
+                WeatherIcons.waterDrop(
                   size: 14,
-                  color: textColor.withOpacity(0.6),
+                  color: textColor.withValues(alpha: 0.6),
                 ),
                 const SizedBox(width: 2),
                 Text(
@@ -122,7 +122,7 @@ class _DailyRow extends StatelessWidget {
           Text(
             '${day.temperatureMin.round()}°',
             style: AppTextStyles.dailyTemp(textColor).copyWith(
-              color: textColor.withOpacity(0.6),
+              color: textColor.withValues(alpha: 0.6),
             ),
           ),
         ],
@@ -130,25 +130,6 @@ class _DailyRow extends StatelessWidget {
     );
   }
 
-  IconData _getWeatherIcon(int code) {
-    if (code == 0) {
-      return Icons.wb_sunny;
-    } else if (code <= 3) {
-      return Icons.wb_cloudy;
-    } else if (code <= 48) {
-      return Icons.foggy;
-    } else if (code <= 67) {
-      return Icons.water_drop;
-    } else if (code <= 77) {
-      return Icons.ac_unit;
-    } else if (code <= 82) {
-      return Icons.grain;
-    } else if (code <= 86) {
-      return Icons.ac_unit;
-    } else {
-      return Icons.thunderstorm;
-    }
-  }
 }
 
 class _TemperatureBar extends StatelessWidget {
@@ -170,8 +151,8 @@ class _TemperatureBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(2),
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.3),
-            color.withOpacity(0.8),
+            color.withValues(alpha: 0.3),
+            color.withValues(alpha: 0.8),
           ],
         ),
       ),

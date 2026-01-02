@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../core/theme/weather_icons.dart';
 import '../../data/models/location_search_result.dart';
 import '../providers/weather_provider.dart';
 
@@ -94,16 +95,17 @@ class _CitySearchScreenState extends ConsumerState<CitySearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       backgroundColor: const Color(0xFF1a1a2e),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+        leading: GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          behavior: HitTestBehavior.opaque,
+          child: Center(
+            child: WeatherIcons.arrowBack(size: 24, color: Colors.white),
+          ),
         ),
         title: const Text(
           'Search City',
@@ -123,20 +125,26 @@ class _CitySearchScreenState extends ConsumerState<CitySearchScreen> {
               decoration: InputDecoration(
                 hintText: 'Search for a city...',
                 hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
-                prefixIcon: const Icon(Icons.search, color: Colors.white54),
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: WeatherIcons.search(size: 24, color: Colors.white54),
+                ),
                 suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear, color: Colors.white54),
-                        onPressed: () {
+                    ? GestureDetector(
+                        onTap: () {
                           _searchController.clear();
                           _onSearchChanged('');
                         },
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: WeatherIcons.close(size: 24, color: Colors.white54),
+                        ),
                       )
                     : null,
                 filled: true,
                 fillColor: Colors.white.withValues(alpha: 0.1),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(32),
                   borderSide: BorderSide.none,
                 ),
                 contentPadding: const EdgeInsets.symmetric(
@@ -167,10 +175,9 @@ class _CitySearchScreenState extends ConsumerState<CitySearchScreen> {
                         color: Colors.blue.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
-                        Icons.my_location,
-                        color: Colors.blue,
+                      child: WeatherIcons.myLocation(
                         size: 20,
+                        color: Colors.blue,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -183,8 +190,8 @@ class _CitySearchScreenState extends ConsumerState<CitySearchScreen> {
                       ),
                     ),
                     const Spacer(),
-                    const Icon(
-                      Icons.chevron_right,
+                    WeatherIcons.chevronRight(
+                      size: 24,
                       color: Colors.white54,
                     ),
                   ],
@@ -216,7 +223,7 @@ class _CitySearchScreenState extends ConsumerState<CitySearchScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, color: Colors.red, size: 48),
+            WeatherIcons.errorOutline(size: 48, color: Colors.red),
             const SizedBox(height: 16),
             Text(
               _error!,
@@ -287,11 +294,7 @@ class _CityResultTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Icon(
-              Icons.location_city,
-              color: Colors.white54,
-              size: 24,
-            ),
+            WeatherIcons.city(size: 24, color: Colors.white54),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

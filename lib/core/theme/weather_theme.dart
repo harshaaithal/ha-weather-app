@@ -26,16 +26,21 @@ class WeatherTheme {
 
   static WeatherTheme fromCondition(WeatherCondition condition) {
     switch (condition) {
+      // Clear conditions
       case WeatherCondition.clearDay:
         return sunny;
       case WeatherCondition.clearNight:
         return clearNight;
+
+      // Cloudy conditions
       case WeatherCondition.partlyCloudyDay:
         return partlyCloudy;
       case WeatherCondition.partlyCloudyNight:
         return cloudyNight;
       case WeatherCondition.cloudy:
         return cloudy;
+
+      // Precipitation
       case WeatherCondition.foggy:
         return foggy;
       case WeatherCondition.drizzle:
@@ -54,6 +59,18 @@ class WeatherTheme {
         return sleet;
       case WeatherCondition.hail:
         return hail;
+
+      // Derived conditions (time, temperature, wind)
+      case WeatherCondition.sunrise:
+        return sunrise;
+      case WeatherCondition.sunset:
+        return sunset;
+      case WeatherCondition.windy:
+        return windy;
+      case WeatherCondition.extremeHeat:
+        return extremeHeat;
+      case WeatherCondition.extremeCold:
+        return extremeCold;
     }
   }
 
@@ -158,10 +175,58 @@ class WeatherTheme {
     showParticles: true,
     particleType: ParticleType.rain,
   );
+
+  // ============ Derived Weather Themes from STYLE_GUIDE.md ============
+
+  /// Sunrise / Dawn
+  /// Gradient: #FF8A65 → #FFB74D → #64B5F6 (orange-gold-blue, 3-stop)
+  static const sunrise = WeatherTheme(
+    gradientColors: [Color(0xFFFF8A65), Color(0xFFFFB74D), Color(0xFF64B5F6)],
+    showParticles: true,
+    particleType: ParticleType.sunRays,
+  );
+
+  /// Sunset / Dusk
+  /// Gradient: #FF7043 → #CE93D8 → #5C6BC0 (orange-pink-purple, 3-stop)
+  static const sunset = WeatherTheme(
+    gradientColors: [Color(0xFFFF7043), Color(0xFFCE93D8), Color(0xFF5C6BC0)],
+    showParticles: true,
+    particleType: ParticleType.sunRays,
+  );
+
+  /// Windy
+  /// Gradient: #64B5F6 → #90CAF9 (breezy blue)
+  static const windy = WeatherTheme(
+    gradientColors: [Color(0xFF64B5F6), Color(0xFF90CAF9)],
+    showParticles: true,
+    particleType: ParticleType.wind,
+  );
+
+  /// Extreme Heat / Heatwave
+  /// Gradient: #FF6F00 → #FF8F00 (intense orange)
+  static const extremeHeat = WeatherTheme(
+    gradientColors: [Color(0xFFFF6F00), Color(0xFFFF8F00)],
+    showParticles: true,
+    particleType: ParticleType.heat,
+  );
+
+  /// Extreme Cold / Freezing
+  /// Gradient: #E1F5FE → #B3E5FC (pale icy blue)
+  static const extremeCold = WeatherTheme(
+    gradientColors: [Color(0xFFE1F5FE), Color(0xFFB3E5FC)],
+    textColor: Color(0xFF0D47A1),
+    secondaryTextColor: Color(0xFF1565C0),
+    showParticles: true,
+    particleType: ParticleType.frost,
+  );
 }
 
 enum ParticleType {
   rain,
   snow,
   stars,
+  sunRays,   // For sunrise/sunset
+  wind,      // Horizontal leaves/debris
+  heat,      // Heat shimmer effect
+  frost,     // Ice crystals on screen edges
 }

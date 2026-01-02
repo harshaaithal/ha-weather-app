@@ -1,11 +1,16 @@
-/// WMO Weather interpretation codes (WW)
+/// Weather conditions based on WMO codes + derived conditions from STYLE_GUIDE.md
 /// https://open-meteo.com/en/docs
 enum WeatherCondition {
+  // Clear conditions
   clearDay,
   clearNight,
+
+  // Cloudy conditions
   partlyCloudyDay,
   partlyCloudyNight,
   cloudy,
+
+  // Precipitation
   foggy,
   drizzle,
   rain,
@@ -15,12 +20,125 @@ enum WeatherCondition {
   heavySnow,
   sleet,
   hail,
+
+  // Derived from additional data (time, temperature, wind)
+  sunrise,       // Time-based: around sunrise hour
+  sunset,        // Time-based: around sunset hour
+  windy,         // Wind speed > 40 km/h
+  extremeHeat,   // Temperature > 35°C
+  extremeCold,   // Temperature < -10°C
+}
+
+/// Resolves the most appropriate WeatherCondition based on all available data.
+/// Considers WMO code, temperature, wind speed, and time of day.
+class WeatherConditionResolver {
+  WeatherConditionResolver._();
+
+  /// Thresholds for derived conditions
+  static const double extremeHeatThreshold = 35.0; // °C
+  static const double extremeColdThreshold = -10.0; // °C
+  static const double windyThreshold = 40.0; // km/h
+
+  /// Duration around sunrise/sunset to show special theme (in minutes)
+  static const int sunriseSunsetWindow = 30;
+
+  /// Resolves the most appropriate weather condition.
+  ///
+  /// Priority order:
+  /// 1. Severe weather (thunderstorm, hail, blizzard)
+  /// 2. Precipitation (rain, snow, sleet, drizzle)
+  /// 3. Extreme temperatures (only if clear/partly cloudy)
+  /// 4. Sunrise/sunset time windows (only if clear/partly cloudy)
+  /// 5. Windy conditions (only if clear/partly cloudy)
+  /// 6. Base WMO condition
+  static WeatherCondition resolve({
+    required int wmoCode,
+    required bool isDay,
+    required double temperature,
+    required double windSpeed,
+    DateTime? currentTime,
+    DateTime? sunrise,
+    DateTime? sunset,
+  }) {
+    // Get base condition from WMO code
+    final baseCondition = WeatherCodes.fromWmoCode(wmoCode, isDay: isDay);
+
+    // Severe weather and precipitation take priority - don't override
+    if (_isSevereOrPrecipitation(baseCondition)) {
+      return baseCondition;
+    }
+
+    // Check for sunrise/sunset window (only for clear/partly cloudy conditions)
+    if (_isClearOrPartlyCloudy(baseCondition) &&
+        currentTime != null &&
+        sunrise != null &&
+        sunset != null) {
+      if (_isNearSunrise(currentTime, sunrise)) {
+        return WeatherCondition.sunrise;
+      }
+      if (_isNearSunset(currentTime, sunset)) {
+        return WeatherCondition.sunset;
+      }
+    }
+
+    // Check extreme temperatures (only for clear/partly cloudy)
+    if (_isClearOrPartlyCloudy(baseCondition)) {
+      if (temperature >= extremeHeatThreshold) {
+        return WeatherCondition.extremeHeat;
+      }
+      if (temperature <= extremeColdThreshold) {
+        return WeatherCondition.extremeCold;
+      }
+    }
+
+    // Check windy conditions (only for clear/partly cloudy, not during precipitation)
+    if (_isClearOrPartlyCloudy(baseCondition) && windSpeed >= windyThreshold) {
+      return WeatherCondition.windy;
+    }
+
+    return baseCondition;
+  }
+
+  static bool _isSevereOrPrecipitation(WeatherCondition condition) {
+    return [
+      WeatherCondition.thunderstorm,
+      WeatherCondition.hail,
+      WeatherCondition.heavySnow,
+      WeatherCondition.heavyRain,
+      WeatherCondition.rain,
+      WeatherCondition.snow,
+      WeatherCondition.sleet,
+      WeatherCondition.drizzle,
+      WeatherCondition.foggy,
+    ].contains(condition);
+  }
+
+  static bool _isClearOrPartlyCloudy(WeatherCondition condition) {
+    return [
+      WeatherCondition.clearDay,
+      WeatherCondition.clearNight,
+      WeatherCondition.partlyCloudyDay,
+      WeatherCondition.partlyCloudyNight,
+      WeatherCondition.cloudy,
+    ].contains(condition);
+  }
+
+  static bool _isNearSunrise(DateTime current, DateTime sunrise) {
+    final diff = current.difference(sunrise).inMinutes.abs();
+    return diff <= sunriseSunsetWindow;
+  }
+
+  static bool _isNearSunset(DateTime current, DateTime sunset) {
+    final diff = current.difference(sunset).inMinutes.abs();
+    return diff <= sunriseSunsetWindow;
+  }
 }
 
 class WeatherCodes {
   WeatherCodes._();
 
-  /// Maps Open-Meteo WMO weather codes to our WeatherCondition
+  /// Maps Open-Meteo WMO weather codes to our WeatherCondition.
+  /// For more accurate results, use WeatherConditionResolver.resolve() instead.
   static WeatherCondition fromWmoCode(int code, {bool isDay = true}) {
     switch (code) {
       case 0: // Clear sky

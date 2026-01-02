@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/theme/weather_icons.dart';
 import '../../core/theme/weather_theme.dart';
 import '../../core/utils/page_transitions.dart';
 import '../../data/models/weather.dart';
@@ -48,12 +49,14 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
   }
 
   Widget _buildWeatherContent(Weather weather) {
-    final theme = WeatherTheme.fromCondition(weather.current.condition);
+    // Use resolvedCondition for accurate theming based on temperature, wind, time
+    final condition = weather.resolvedCondition;
+    final theme = WeatherTheme.fromCondition(condition);
     final isRefreshing = ref.watch(isRefreshingProvider);
 
     return WeatherScaffold(
       theme: theme,
-      condition: weather.current.condition,
+      condition: condition,
       isDay: weather.current.isDay,
       child: RefreshIndicator(
         onRefresh: () async {
@@ -79,7 +82,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                 const SizedBox(height: 24),
                 // Landmark Placeholder
                 LandmarkPlaceholder(
-                  condition: weather.current.condition,
+                  condition: condition,
                   isDay: weather.current.isDay,
                   isRefreshing: isRefreshing,
                 ),
@@ -125,8 +128,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.location_on,
+              WeatherIcons.locationPin(
                 size: 20,
                 color: theme.textColor.withValues(alpha: 0.8),
               ),
@@ -138,14 +140,17 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              // Search button
-              IconButton(
-                onPressed: () => _openCitySearch(),
-                icon: Icon(
-                  Icons.search,
-                  color: theme.textColor.withValues(alpha: 0.8),
+              // Search button - custom tap target instead of Material IconButton
+              GestureDetector(
+                onTap: () => _openCitySearch(),
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: WeatherIcons.search(
+                    size: 24,
+                    color: theme.textColor.withValues(alpha: 0.8),
+                  ),
                 ),
-                tooltip: 'Search city',
               ),
             ],
           ),
@@ -235,10 +240,9 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.cloud_off,
+              WeatherIcons.cloudOff(
                 size: 64,
-                color: theme.textColor.withOpacity(0.7),
+                color: theme.textColor.withValues(alpha: 0.7),
               ),
               const SizedBox(height: 16),
               Text(
@@ -253,15 +257,31 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: () {
+              // Custom retry button instead of Material ElevatedButton
+              GestureDetector(
+                onTap: () {
                   ref.read(weatherNotifierProvider.notifier).fetchWeatherForCurrentLocation();
                 },
-                icon: const Icon(Icons.refresh),
-                label: const Text('Try Again'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.textColor,
-                  foregroundColor: theme.gradientColors.first,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: theme.textColor,
+                    borderRadius: BorderRadius.circular(32),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      WeatherIcons.refresh(size: 20, color: theme.gradientColors.first),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Try Again',
+                        style: TextStyle(
+                          color: theme.gradientColors.first,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

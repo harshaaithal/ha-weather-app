@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/theme/weather_icons.dart';
 import '../../data/models/weather.dart';
 
 /// 2x2 stats grid showing weather details.
 /// Primary stats: Feels like, Wind, Precipitation, Humidity
+/// Uses custom line icons with 1.5px stroke per STYLE_GUIDE.md.
 class StatsGrid extends StatelessWidget {
   final CurrentWeather weather;
   final Color textColor;
@@ -17,6 +19,8 @@ class StatsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconColor = textColor.withValues(alpha: 0.7);
+
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -26,25 +30,25 @@ class StatsGrid extends StatelessWidget {
       childAspectRatio: 1.8,
       children: [
         _StatCard(
-          icon: Icons.thermostat_outlined,
+          icon: WeatherIcons.thermometer(size: 18, color: iconColor),
           label: 'Feels like',
           value: '${weather.apparentTemperature.round()}°',
           textColor: textColor,
         ),
         _StatCard(
-          icon: Icons.air,
+          icon: WeatherIcons.wind(size: 18, color: iconColor),
           label: 'Wind',
           value: '${weather.windSpeed.round()} km/h',
           textColor: textColor,
         ),
         _StatCard(
-          icon: Icons.water_drop_outlined,
+          icon: WeatherIcons.waterDrop(size: 18, color: iconColor),
           label: 'Precipitation',
           value: '${weather.precipitation} mm',
           textColor: textColor,
         ),
         _StatCard(
-          icon: Icons.opacity,
+          icon: WeatherIcons.humidity(size: 18, color: iconColor),
           label: 'Humidity',
           value: '${weather.humidity}%',
           textColor: textColor,
@@ -58,7 +62,7 @@ class StatsGrid extends StatelessWidget {
 }
 
 class _StatCard extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String label;
   final String value;
   final Color textColor;
@@ -75,8 +79,8 @@ class _StatCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: textColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
+        color: textColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(32),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,11 +88,7 @@ class _StatCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                icon,
-                size: 18,
-                color: textColor.withOpacity(0.7),
-              ),
+              icon,
               const SizedBox(width: 6),
               Text(
                 label,

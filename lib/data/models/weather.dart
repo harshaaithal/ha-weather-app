@@ -6,6 +6,8 @@ part 'weather.g.dart';
 
 @freezed
 sealed class Weather with _$Weather {
+  const Weather._();
+
   const factory Weather({
     required CurrentWeather current,
     required List<HourlyWeather> hourly,
@@ -14,6 +16,18 @@ sealed class Weather with _$Weather {
   }) = _Weather;
 
   factory Weather.fromJson(Map<String, dynamic> json) => _$WeatherFromJson(json);
+
+  /// Gets the resolved weather condition using all available data.
+  /// This considers temperature, wind speed, and sunrise/sunset times
+  /// for more accurate theming (e.g., showing sunrise theme at dawn).
+  WeatherCondition get resolvedCondition {
+    // Use today's sunrise/sunset if available
+    final today = daily.isNotEmpty ? daily.first : null;
+    return current.resolveCondition(
+      sunrise: today?.sunrise,
+      sunset: today?.sunset,
+    );
+  }
 }
 
 @freezed
@@ -37,7 +51,26 @@ sealed class CurrentWeather with _$CurrentWeather {
   factory CurrentWeather.fromJson(Map<String, dynamic> json) =>
       _$CurrentWeatherFromJson(json);
 
+  /// Basic condition from WMO code only
   WeatherCondition get condition => WeatherCodes.fromWmoCode(weatherCode, isDay: isDay);
+
+  /// Resolved condition considering temperature, wind, and time of day.
+  /// Use this for more accurate theming.
+  WeatherCondition resolveCondition({
+    DateTime? sunrise,
+    DateTime? sunset,
+  }) {
+    return WeatherConditionResolver.resolve(
+      wmoCode: weatherCode,
+      isDay: isDay,
+      temperature: temperature,
+      windSpeed: windSpeed,
+      currentTime: time,
+      sunrise: sunrise,
+      sunset: sunset,
+    );
+  }
+
   String get description => WeatherCodes.getDescription(weatherCode);
 }
 

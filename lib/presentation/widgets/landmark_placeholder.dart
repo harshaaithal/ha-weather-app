@@ -128,10 +128,13 @@ class _LandmarkPlaceholderState extends State<LandmarkPlaceholder>
     }
 
     switch (widget.condition) {
+      // Severe weather
       case WeatherCondition.thunderstorm:
         return const Color(0xFF4a148c).withValues(alpha: 0.5);
       case WeatherCondition.hail:
         return const Color(0xFF4a148c).withValues(alpha: 0.4);
+
+      // Precipitation
       case WeatherCondition.rain:
       case WeatherCondition.heavyRain:
       case WeatherCondition.drizzle:
@@ -142,15 +145,35 @@ class _LandmarkPlaceholderState extends State<LandmarkPlaceholder>
         return const Color(0xFFe3f2fd).withValues(alpha: 0.3);
       case WeatherCondition.foggy:
         return const Color(0xFF90a4ae).withValues(alpha: 0.5);
+
+      // Cloudy
       case WeatherCondition.cloudy:
         return const Color(0xFF78909c).withValues(alpha: 0.3);
       case WeatherCondition.partlyCloudyDay:
       case WeatherCondition.partlyCloudyNight:
         return const Color(0xFF78909c).withValues(alpha: 0.2);
+
+      // Clear
       case WeatherCondition.clearDay:
         return const Color(0xFFffab00).withValues(alpha: 0.2);
       case WeatherCondition.clearNight:
         return const Color(0xFF1a237e).withValues(alpha: 0.4);
+
+      // Derived conditions - sunrise/sunset
+      case WeatherCondition.sunrise:
+        return const Color(0xFFFF8A65).withValues(alpha: 0.4); // Warm orange glow
+      case WeatherCondition.sunset:
+        return const Color(0xFFFF7043).withValues(alpha: 0.5); // Golden hour glow
+
+      // Derived conditions - extreme temperatures
+      case WeatherCondition.extremeHeat:
+        return const Color(0xFFFF6F00).withValues(alpha: 0.4); // Intense heat shimmer
+      case WeatherCondition.extremeCold:
+        return const Color(0xFFE1F5FE).withValues(alpha: 0.5); // Icy frost
+
+      // Derived conditions - wind
+      case WeatherCondition.windy:
+        return const Color(0xFF64B5F6).withValues(alpha: 0.3); // Breezy blue
     }
   }
 }

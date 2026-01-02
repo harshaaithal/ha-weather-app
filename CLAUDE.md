@@ -18,20 +18,12 @@ A beautiful Flutter weather app with dynamic gradient backgrounds and 3D city la
 ## Current Status
 - **Phase 0:** COMPLETED (Setup)
 - **Phase 1:** COMPLETED (MVP Core) - Data layer, UI, Placeholder Landmark, City Search all done
-- **Phase 2:** IN PROGRESS (Polish & Particles) - Weather particles done (rain, snow, lightning, stars)
+- **Phase 2:** COMPLETED (Polish & Particles)
+  - 2.1 Weather particles (rain, snow, lightning, stars)
+  - 2.2 Animations (screen transitions, pull-to-refresh landmark spin)
+  - 2.3 Expanded weather themes (19 conditions with smart resolver)
+  - 2.4 Polish gaps (border radius, line icons, custom widgets)
 - **Phase 3:** NEXT (3D Assets)
-
-## Polish Phase Gaps (DO NOT FORGET)
-These items deviate from STYLE_GUIDE.md and need addressing in Polish phase:
-
-1. **Card border radius**: Currently 16px, should be 32px (STYLE_GUIDE line 166)
-2. **Stats icons**: Using Material filled icons, should be "Line icons, 1.5px stroke" (STYLE_GUIDE line 201)
-3. **Material widget usage**: STYLE_GUIDE says "Don't use default Material/Cupertino widgets" (line 246)
-   - `IconButton` in weather_screen.dart header
-   - `RefreshIndicator` in weather_screen.dart
-   - Material `Icons.*` throughout
-   - `Scaffold`/`AppBar` in city_search_screen.dart (acceptable for secondary screen)
-4. **Some gradient colors** may need fine-tuning to match STYLE_GUIDE exactly
 
 ## Tech Stack
 - Flutter 3.38.5
