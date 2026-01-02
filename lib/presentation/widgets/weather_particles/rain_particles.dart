@@ -47,7 +47,7 @@ class _RainParticlesState extends State<RainParticles>
       y: startY ?? _random.nextDouble(),
       speed: 0.3 + _random.nextDouble() * 0.4 * widget.intensity,
       length: 10 + _random.nextDouble() * 20 * widget.intensity,
-      opacity: 0.3 + _random.nextDouble() * 0.4,
+      opacity: 0.6 + _random.nextDouble() * 0.2, // 60-80% per STYLE_GUIDE
       thickness: 1 + _random.nextDouble() * 1.5,
     );
   }
