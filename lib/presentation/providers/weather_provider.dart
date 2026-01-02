@@ -134,3 +134,6 @@ final weatherNotifierProvider =
   final locationService = ref.watch(locationServiceProvider);
   return WeatherNotifier(repository, locationService);
 });
+
+/// Provider to track if a refresh is in progress (for landmark spin animation).
+final isRefreshingProvider = StateProvider<bool>((ref) => false);

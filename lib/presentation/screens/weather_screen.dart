@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/weather_theme.dart';
+import '../../core/utils/page_transitions.dart';
 import '../../data/models/weather.dart';
 import '../providers/weather_provider.dart';
 import '../widgets/weather_background.dart';
@@ -48,13 +49,18 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
 
   Widget _buildWeatherContent(Weather weather) {
     final theme = WeatherTheme.fromCondition(weather.current.condition);
+    final isRefreshing = ref.watch(isRefreshingProvider);
 
     return WeatherScaffold(
       theme: theme,
       condition: weather.current.condition,
       isDay: weather.current.isDay,
       child: RefreshIndicator(
-        onRefresh: () => ref.read(weatherNotifierProvider.notifier).refresh(),
+        onRefresh: () async {
+          ref.read(isRefreshingProvider.notifier).state = true;
+          await ref.read(weatherNotifierProvider.notifier).refresh();
+          ref.read(isRefreshingProvider.notifier).state = false;
+        },
         color: theme.textColor,
         backgroundColor: theme.gradientColors.first,
         child: SingleChildScrollView(
@@ -75,6 +81,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                 LandmarkPlaceholder(
                   condition: weather.current.condition,
                   isDay: weather.current.isDay,
+                  isRefreshing: isRefreshing,
                 ),
                 const SizedBox(height: 24),
                 // Stats Grid
@@ -154,9 +161,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
 
   void _openCitySearch() {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const CitySearchScreen(),
-      ),
+      FadeSlidePageRoute(page: const CitySearchScreen()),
     );
   }
 

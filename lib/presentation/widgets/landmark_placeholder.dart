@@ -6,55 +6,109 @@ import '../../core/theme/weather_theme.dart';
 
 /// A placeholder landmark widget that displays a stylized city silhouette
 /// with weather-appropriate lighting and a subtle floating animation.
-class LandmarkPlaceholder extends StatelessWidget {
+/// Spins during pull-to-refresh.
+class LandmarkPlaceholder extends StatefulWidget {
   final WeatherCondition condition;
   final bool isDay;
+  final bool isRefreshing;
 
   const LandmarkPlaceholder({
     super.key,
     required this.condition,
     required this.isDay,
+    this.isRefreshing = false,
   });
 
   @override
+  State<LandmarkPlaceholder> createState() => _LandmarkPlaceholderState();
+}
+
+class _LandmarkPlaceholderState extends State<LandmarkPlaceholder>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _spinController;
+
+  @override
+  void initState() {
+    super.initState();
+    _spinController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+  }
+
+  @override
+  void didUpdateWidget(LandmarkPlaceholder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isRefreshing && !oldWidget.isRefreshing) {
+      _spinController.repeat();
+    } else if (!widget.isRefreshing && oldWidget.isRefreshing) {
+      // Complete the current rotation before stopping
+      _spinController.forward().then((_) {
+        if (mounted) _spinController.reset();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _spinController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final theme = WeatherTheme.fromCondition(condition);
+    final theme = WeatherTheme.fromCondition(widget.condition);
     final overlayColor = _getLightingOverlay();
 
-    return Center(
-      child: SizedBox(
-        width: 280,
-        height: 200,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // City silhouette with lighting overlay
-            CustomPaint(
-              size: const Size(280, 180),
-              painter: _CitySilhouettePainter(
-                baseColor: theme.textColor.withValues(alpha: 0.3),
-                overlayColor: overlayColor,
-              ),
+    Widget landmark = SizedBox(
+      width: 280,
+      height: 200,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // City silhouette with lighting overlay
+          CustomPaint(
+            size: const Size(280, 180),
+            painter: _CitySilhouettePainter(
+              baseColor: theme.textColor.withValues(alpha: 0.3),
+              overlayColor: overlayColor,
             ),
-            // Glow effect behind buildings
-            Positioned(
-              bottom: 0,
-              child: Container(
-                width: 240,
-                height: 40,
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      overlayColor.withValues(alpha: 0.4),
-                      overlayColor.withValues(alpha: 0.0),
-                    ],
-                  ),
+          ),
+          // Glow effect behind buildings
+          Positioned(
+            bottom: 0,
+            child: Container(
+              width: 240,
+              height: 40,
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  colors: [
+                    overlayColor.withValues(alpha: 0.4),
+                    overlayColor.withValues(alpha: 0.0),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
-      )
+          ),
+        ],
+      ),
+    );
+
+    // Add spin animation when refreshing
+    landmark = AnimatedBuilder(
+      animation: _spinController,
+      builder: (context, child) {
+        return Transform.rotate(
+          angle: _spinController.value * 2 * 3.14159,
+          child: child,
+        );
+      },
+      child: landmark,
+    );
+
+    // Add floating animation (only when not refreshing)
+    return Center(
+      child: landmark
           .animate(
             onPlay: (controller) => controller.repeat(reverse: true),
           )
@@ -68,12 +122,12 @@ class LandmarkPlaceholder extends StatelessWidget {
   }
 
   Color _getLightingOverlay() {
-    if (!isDay) {
+    if (!widget.isDay) {
       // Night time - bluish/purple tint
       return const Color(0xFF1a237e).withValues(alpha: 0.6);
     }
 
-    switch (condition) {
+    switch (widget.condition) {
       case WeatherCondition.thunderstorm:
         return const Color(0xFF4a148c).withValues(alpha: 0.5);
       case WeatherCondition.hail:
