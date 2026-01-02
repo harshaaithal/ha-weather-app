@@ -10,6 +10,7 @@ import '../widgets/weather_background.dart';
 import '../widgets/stats_grid.dart';
 import '../widgets/hourly_forecast.dart';
 import '../widgets/daily_forecast.dart';
+import '../widgets/landmark_placeholder.dart';
 
 class WeatherScreen extends ConsumerStatefulWidget {
   const WeatherScreen({super.key});
@@ -66,7 +67,13 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                 const SizedBox(height: 32),
                 // Temperature Hero
                 _buildTemperatureHero(weather, theme),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+                // Landmark Placeholder
+                LandmarkPlaceholder(
+                  condition: weather.current.condition,
+                  isDay: weather.current.isDay,
+                ),
+                const SizedBox(height: 24),
                 // Stats Grid
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
