@@ -22,7 +22,6 @@ dependencies:
 
   # Networking & API
   dio: ^5.8.0
-  retrofit: ^4.4.2
 
   # Location Services
   geolocator: ^13.0.3
@@ -54,7 +53,6 @@ dev_dependencies:
   riverpod_generator: ^2.6.3
   freezed: ^3.0.5
   json_serializable: ^6.9.4
-  retrofit_generator: ^9.1.7
 
 flutter:
   uses-material-design: true
