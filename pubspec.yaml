@@ -60,7 +60,8 @@ flutter:
   assets:
     - assets/images/
     - assets/animations/
-    - assets/landmarks/
+    - assets/landmarks/cities/
+    - assets/landmarks/fallbacks/
 
   # fonts:
   #   - family: Inter
