@@ -11,6 +11,7 @@ import '../widgets/stats_grid.dart';
 import '../widgets/hourly_forecast.dart';
 import '../widgets/daily_forecast.dart';
 import '../widgets/landmark_placeholder.dart';
+import 'city_search_screen.dart';
 
 class WeatherScreen extends ConsumerStatefulWidget {
   const WeatherScreen({super.key});
@@ -120,7 +121,7 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
               Icon(
                 Icons.location_on,
                 size: 20,
-                color: theme.textColor.withOpacity(0.8),
+                color: theme.textColor.withValues(alpha: 0.8),
               ),
               const SizedBox(width: 4),
               Expanded(
@@ -129,6 +130,15 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                   style: AppTextStyles.cityName(theme.textColor),
                   overflow: TextOverflow.ellipsis,
                 ),
+              ),
+              // Search button
+              IconButton(
+                onPressed: () => _openCitySearch(),
+                icon: Icon(
+                  Icons.search,
+                  color: theme.textColor.withValues(alpha: 0.8),
+                ),
+                tooltip: 'Search city',
               ),
             ],
           ),
@@ -139,6 +149,14 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
           ),
         ],
       ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.2, end: 0),
+    );
+  }
+
+  void _openCitySearch() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const CitySearchScreen(),
+      ),
     );
   }
 

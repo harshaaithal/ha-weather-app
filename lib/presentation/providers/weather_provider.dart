@@ -94,6 +94,30 @@ class WeatherNotifier extends StateNotifier<AsyncValue<Weather?>> {
     }
   }
 
+  /// Fetches weather for a search result location.
+  Future<void> fetchWeatherForLocation(LocationSearchResult searchResult) async {
+    state = const AsyncValue.loading();
+    try {
+      final weather = await _repository.getWeatherForLocation(searchResult);
+      // Update weather with location from search result
+      state = AsyncValue.data(Weather(
+        current: weather.current,
+        hourly: weather.hourly,
+        daily: weather.daily,
+        location: Location(
+          latitude: searchResult.latitude,
+          longitude: searchResult.longitude,
+          name: searchResult.name,
+          country: searchResult.country,
+          admin1: searchResult.admin1,
+          timezone: searchResult.timezone,
+        ),
+      ));
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+    }
+  }
+
   /// Refreshes weather data for the current location.
   Future<void> refresh() async {
     final currentWeather = state.valueOrNull;
