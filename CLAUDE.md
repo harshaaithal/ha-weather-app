@@ -17,7 +17,8 @@ A beautiful Flutter weather app with dynamic gradient backgrounds and 3D city la
 
 ## Current Status
 - **Phase 0:** COMPLETED (Setup)
-- **Phase 1:** IN PROGRESS (MVP Core) - Data layer & UI done, Placeholder Landmark pending
+- **Phase 1:** COMPLETED (MVP Core) - Data layer, UI, and Placeholder Landmark all done
+- **Phase 2:** NEXT (Polish & Particles)
 
 ## Tech Stack
 - Flutter 3.38.5
