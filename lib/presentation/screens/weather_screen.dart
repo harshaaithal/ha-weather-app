@@ -50,6 +50,8 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
 
     return WeatherScaffold(
       theme: theme,
+      condition: weather.current.condition,
+      isDay: weather.current.isDay,
       child: RefreshIndicator(
         onRefresh: () => ref.read(weatherNotifierProvider.notifier).refresh(),
         color: theme.textColor,
