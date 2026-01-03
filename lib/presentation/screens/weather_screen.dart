@@ -12,7 +12,7 @@ import '../widgets/weather_background.dart';
 import '../widgets/stats_grid.dart';
 import '../widgets/hourly_forecast.dart';
 import '../widgets/daily_forecast.dart';
-import '../widgets/landmark_placeholder.dart';
+import '../widgets/landmark_widget.dart';
 import 'city_search_screen.dart';
 
 class WeatherScreen extends ConsumerStatefulWidget {
@@ -80,8 +80,9 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                 // Temperature Hero
                 _buildTemperatureHero(weather, theme),
                 const SizedBox(height: 24),
-                // Landmark Placeholder
-                LandmarkPlaceholder(
+                // City Landmark
+                LandmarkWidget(
+                  location: weather.location,
                   condition: condition,
                   isDay: weather.current.isDay,
                   isRefreshing: isRefreshing,
