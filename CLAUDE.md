@@ -23,10 +23,12 @@ A beautiful Flutter weather app with dynamic gradient backgrounds and 3D city la
   - 2.2 Animations (screen transitions, pull-to-refresh landmark spin)
   - 2.3 Expanded weather themes (19 conditions with smart resolver)
   - 2.4 Polish gaps (border radius, line icons, custom widgets)
-- **Phase 3:** IN PROGRESS (3D Assets)
-  - Asset folder structure created
-  - Midjourney prompts provided for 38 images (30 cities + 8 fallbacks)
-  - Awaiting user to generate landmark images
+- **Phase 3:** COMPLETED (3D Assets)
+  - 30 city landmark images (Tokyo, Paris, NYC, London, etc.)
+  - 8 fallback images (asian_metro, european_historic, modern_metro, tropical, desert, coastal, mountain, rural)
+  - LandmarkService with intelligent city→asset mapping
+  - LandmarkWidget with weather-based lighting overlays
+  - Fallback logic: city match → country region → latitude climate
 
 ## Tech Stack
 - Flutter 3.38.5
@@ -130,3 +132,26 @@ dart run build_runner build --delete-conflicting-outputs
 2. Place images in `assets/landmarks/cities/` and `assets/landmarks/fallbacks/`
 3. Build asset loading system and city→landmark mapping logic
 4. Integrate landmarks with weather screen (replace placeholder)
+
+### 2026-01-03 (Session 3)
+**Completed:**
+- Phase 3: 3D Asset Integration
+  - User provided 38 landmark images (30 cities + 8 fallbacks)
+  - Created `LandmarkService` with intelligent city-to-asset mapping
+    - Supports city name variants (e.g., "NYC", "New York", "New York City" → new_york.png)
+    - Country-to-region mapping for fallbacks
+    - Latitude-based climate fallback (tropical, desert, coastal, mountain)
+  - Created `LandmarkWidget` replacing `LandmarkPlaceholder`
+    - Loads city-specific or fallback images
+    - Weather-based color overlay lighting
+    - Preserves floating animation (4px, 3s loop)
+    - Preserves refresh spin animation
+  - Integrated into `WeatherScreen`
+
+**Commits:**
+- `9297c18` - feat: add landmark asset system with city mapping (Phase 3)
+
+**Next Steps:**
+1. Phase 4 planning (if applicable)
+2. App store preparation
+3. Testing on physical devices
