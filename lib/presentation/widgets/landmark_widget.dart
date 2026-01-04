@@ -82,56 +82,36 @@ class _LandmarkWidgetState extends State<LandmarkWidget>
   Widget build(BuildContext context) {
     final theme = WeatherTheme.fromCondition(widget.condition);
     final overlayColor = _getLightingOverlay();
+    final screenWidth = MediaQuery.of(context).size.width;
 
     Widget landmark = SizedBox(
-      width: 300,
-      height: 220,
+      width: screenWidth,
+      height: screenWidth * 0.75,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Glow effect behind landmark
+          // Soft ambient glow behind landmark
           Positioned(
-            bottom: 10,
+            bottom: 0,
             child: Container(
-              width: 200,
-              height: 60,
+              width: screenWidth * 0.8,
+              height: 100,
               decoration: BoxDecoration(
                 gradient: RadialGradient(
                   colors: [
-                    overlayColor.withValues(alpha: 0.3),
+                    overlayColor.withValues(alpha: 0.35),
+                    overlayColor.withValues(alpha: 0.1),
                     overlayColor.withValues(alpha: 0.0),
                   ],
+                  stops: const [0.0, 0.5, 1.0],
                 ),
               ),
             ),
           ),
-          // Landmark image with color overlay
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: _assetPath != null && _assetExists
-                ? ColorFiltered(
-                    colorFilter: ColorFilter.mode(
-                      overlayColor.withValues(alpha: 0.2),
-                      BlendMode.overlay,
-                    ),
-                    child: Image.asset(
-                      _assetPath!,
-                      width: 280,
-                      height: 200,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        // Mark asset as non-existent and rebuild
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (mounted) {
-                            setState(() => _assetExists = false);
-                          }
-                        });
-                        return _buildFallbackPlaceholder(theme);
-                      },
-                    ),
-                  )
-                : _buildFallbackPlaceholder(theme),
-          ),
+          // Landmark image with weather-based color overlay
+          _assetPath != null && _assetExists
+              ? _buildLandmarkImage(overlayColor, theme, screenWidth)
+              : _buildFallbackPlaceholder(theme, screenWidth),
         ],
       ),
     );
@@ -156,25 +136,49 @@ class _LandmarkWidgetState extends State<LandmarkWidget>
           )
           .moveY(
             begin: 0,
-            end: -4,
+            end: -6,
             duration: const Duration(seconds: 3),
             curve: Curves.easeInOut,
           ),
     );
   }
 
+  /// Builds the landmark image with weather-based color overlay.
+  Widget _buildLandmarkImage(Color overlayColor, WeatherTheme theme, double screenWidth) {
+    return ColorFiltered(
+      colorFilter: ColorFilter.mode(
+        overlayColor.withValues(alpha: 0.15),
+        BlendMode.color,
+      ),
+      child: Image.asset(
+        _assetPath!,
+        width: screenWidth,
+        height: screenWidth * 0.75,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              setState(() => _assetExists = false);
+            }
+          });
+          return _buildFallbackPlaceholder(theme, screenWidth);
+        },
+      ),
+    );
+  }
+
   /// Builds a simple placeholder when image loading fails.
-  Widget _buildFallbackPlaceholder(WeatherTheme theme) {
+  Widget _buildFallbackPlaceholder(WeatherTheme theme, double screenWidth) {
     return Container(
-      width: 280,
-      height: 200,
+      width: screenWidth * 0.7,
+      height: screenWidth * 0.5,
       decoration: BoxDecoration(
         color: theme.textColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Icon(
         Icons.location_city_rounded,
-        size: 80,
+        size: screenWidth * 0.25,
         color: theme.textColor.withValues(alpha: 0.3),
       ),
     );
