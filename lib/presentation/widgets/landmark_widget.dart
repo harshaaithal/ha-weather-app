@@ -139,19 +139,35 @@ class _LandmarkWidgetState extends State<LandmarkWidget>
       child: landmark,
     );
 
-    // Add floating animation
-    return Center(
-      child: landmark
+    // Add floating animation with optional wind sway
+    final isWindy = widget.condition == WeatherCondition.windy;
+
+    Widget animatedLandmark = landmark
+        .animate(
+          onPlay: (controller) => controller.repeat(reverse: true),
+        )
+        .moveY(
+          begin: 0,
+          end: -6,
+          duration: const Duration(seconds: 3),
+          curve: Curves.easeInOut,
+        );
+
+    // Add wind sway effect for windy conditions
+    if (isWindy) {
+      animatedLandmark = animatedLandmark
           .animate(
             onPlay: (controller) => controller.repeat(reverse: true),
           )
-          .moveY(
-            begin: 0,
-            end: -6,
-            duration: const Duration(seconds: 3),
+          .rotate(
+            begin: -0.02,
+            end: 0.02,
+            duration: const Duration(milliseconds: 1500),
             curve: Curves.easeInOut,
-          ),
-    );
+          );
+    }
+
+    return Center(child: animatedLandmark);
   }
 
   /// Builds the landmark image with weather-based color overlay.
