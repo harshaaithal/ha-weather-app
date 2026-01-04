@@ -5,12 +5,13 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTextStyles {
   AppTextStyles._();
 
-  /// Temperature - 72px, Bold (700)
+  /// Temperature - 64px, Bold (700), tight letter-spacing for hero card
   static TextStyle temperature(Color color) => GoogleFonts.inter(
-        fontSize: 72,
+        fontSize: 64,
         fontWeight: FontWeight.w700,
         color: color,
         height: 1.0,
+        letterSpacing: -2,
       );
 
   /// City Name - 20px, Semibold (600)

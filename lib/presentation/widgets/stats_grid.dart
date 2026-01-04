@@ -27,7 +27,7 @@ class StatsGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
-      childAspectRatio: 1.8,
+      childAspectRatio: 2.2,
       children: [
         _StatCard(
           icon: WeatherIcons.thermometer(size: 18, color: iconColor),
@@ -76,33 +76,27 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: textColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(32),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              icon,
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: AppTextStyles.weatherLabel(textColor),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: AppTextStyles.weatherValue(textColor),
-          ),
-        ],
-      ),
+    // Flat design - no card background per STYLE_GUIDE
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          children: [
+            icon,
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: AppTextStyles.weatherLabel(textColor),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: AppTextStyles.weatherValue(textColor),
+        ),
+      ],
     );
   }
 }

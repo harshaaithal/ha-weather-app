@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
+import '../../core/constants/weather_codes.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/weather_icons.dart';
 import '../../core/theme/weather_theme.dart';
@@ -58,64 +59,117 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
       theme: theme,
       condition: condition,
       isDay: weather.current.isDay,
-      child: RefreshIndicator(
-        onRefresh: () async {
-          ref.read(isRefreshingProvider.notifier).state = true;
-          await ref.read(weatherNotifierProvider.notifier).refresh();
-          ref.read(isRefreshingProvider.notifier).state = false;
-        },
-        color: theme.textColor,
-        backgroundColor: theme.gradientColors.first,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 34),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 16),
-                // Location & Date
-                _buildHeader(weather, theme),
-                const SizedBox(height: 32),
-                // Temperature Hero
-                _buildTemperatureHero(weather, theme),
-                const SizedBox(height: 24),
-                // City Landmark
-                LandmarkWidget(
-                  location: weather.location,
-                  condition: condition,
-                  isDay: weather.current.isDay,
-                  isRefreshing: isRefreshing,
+      child: Stack(
+        children: [
+          // Hero content - single screen layout
+          RefreshIndicator(
+            onRefresh: () async {
+              ref.read(isRefreshingProvider.notifier).state = true;
+              await ref.read(weatherNotifierProvider.notifier).refresh();
+              ref.read(isRefreshingProvider.notifier).state = false;
+            },
+            color: theme.textColor,
+            backgroundColor: theme.gradientColors.first,
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                // Ensure content fills screen for pull-to-refresh
+                height: MediaQuery.of(context).size.height -
+                    MediaQuery.of(context).padding.top - 100,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 16),
+                    // Location & Date
+                    _buildHeader(weather, theme),
+                    const SizedBox(height: 24),
+                    // Temperature + Landmark Row - takes available space
+                    Expanded(
+                      child: _buildHeroRow(weather, theme, condition, isRefreshing),
+                    ),
+                    const SizedBox(height: 16),
+                    // Stats Grid
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: StatsGrid(
+                        weather: weather.current,
+                        textColor: theme.textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 80), // Space for sheet handle
+                  ],
                 ),
-                const SizedBox(height: 24),
-                // Stats Grid
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: StatsGrid(
-                    weather: weather.current,
-                    textColor: theme.textColor,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                // Hourly Forecast
-                _buildSectionTitle('Hourly', theme),
-                const SizedBox(height: 12),
-                HourlyForecast(
-                  hourlyWeather: weather.hourly,
-                  textColor: theme.textColor,
-                ),
-                const SizedBox(height: 32),
-                // Daily Forecast
-                DailyForecast(
-                  dailyWeather: weather.daily,
-                  textColor: theme.textColor,
-                ),
-                const SizedBox(height: 24),
-              ],
+              ),
             ),
           ),
-        ),
+          // Bottom sheet for hourly/daily forecasts
+          _buildForecastSheet(weather, theme),
+        ],
       ),
+    );
+  }
+
+  Widget _buildForecastSheet(Weather weather, WeatherTheme theme) {
+    return DraggableScrollableSheet(
+      initialChildSize: 0.12,
+      minChildSize: 0.12,
+      maxChildSize: 0.75,
+      snap: true,
+      snapSizes: const [0.12, 0.45, 0.75],
+      builder: (context, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: theme.gradientColors.last.withValues(alpha: 0.95),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 20,
+                offset: const Offset(0, -5),
+              ),
+            ],
+          ),
+          child: ListView(
+            controller: scrollController,
+            padding: EdgeInsets.zero,
+            children: [
+              // Drag handle
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 12, bottom: 8),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: theme.textColor.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              // Sheet title
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                child: Text(
+                  'Forecast',
+                  style: AppTextStyles.cityName(theme.textColor),
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Hourly Forecast
+              HourlyForecast(
+                hourlyWeather: weather.hourly,
+                textColor: theme.textColor,
+              ),
+              const SizedBox(height: 24),
+              // Daily Forecast
+              DailyForecast(
+                dailyWeather: weather.daily,
+                textColor: theme.textColor,
+              ),
+              const SizedBox(height: 34),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -171,40 +225,83 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     );
   }
 
-  Widget _buildTemperatureHero(Weather weather, WeatherTheme theme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '${weather.current.temperature.round()}°',
-            style: AppTextStyles.temperature(theme.textColor),
-          )
-              .animate()
-              .fadeIn(duration: 400.ms)
-              .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1)),
-          const SizedBox(height: 8),
-          Text(
-            weather.current.description,
-            style: AppTextStyles.weatherDescription(theme.textColor),
-          ).animate().fadeIn(delay: 200.ms, duration: 300.ms),
-          const SizedBox(height: 4),
-          Text(
-            'H:${weather.daily.first.temperatureMax.round()}° L:${weather.daily.first.temperatureMin.round()}°',
-            style: AppTextStyles.dateTime(theme.textColor),
-          ).animate().fadeIn(delay: 300.ms, duration: 300.ms),
-        ],
-      ),
-    );
-  }
+  Widget _buildHeroRow(
+    Weather weather,
+    WeatherTheme theme,
+    WeatherCondition condition,
+    bool isRefreshing,
+  ) {
+    // Semi-transparent background color that complements the gradient
+    final cardColor = theme.textColor.withValues(alpha: 0.08);
 
-  Widget _buildSectionTitle(String title, WeatherTheme theme) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Text(
-        title,
-        style: AppTextStyles.cityName(theme.textColor),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Temperature Card
+          Expanded(
+            flex: 2,
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: BorderRadius.circular(32),
+                border: Border.all(
+                  color: theme.textColor.withValues(alpha: 0.1),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${weather.current.temperature.round()}°',
+                    style: AppTextStyles.temperature(theme.textColor),
+                  )
+                      .animate()
+                      .fadeIn(duration: 400.ms)
+                      .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1)),
+                  const SizedBox(height: 8),
+                  Text(
+                    weather.current.description,
+                    style: AppTextStyles.weatherDescription(theme.textColor),
+                  ).animate().fadeIn(delay: 200.ms, duration: 300.ms),
+                  const SizedBox(height: 4),
+                  Text(
+                    'H:${weather.daily.first.temperatureMax.round()}° L:${weather.daily.first.temperatureMin.round()}°',
+                    style: AppTextStyles.dateTime(theme.textColor),
+                  ).animate().fadeIn(delay: 300.ms, duration: 300.ms),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Landmark Card
+          Expanded(
+            flex: 3,
+            child: Container(
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: BorderRadius.circular(32),
+                border: Border.all(
+                  color: theme.textColor.withValues(alpha: 0.1),
+                  width: 1,
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(31),
+                child: LandmarkWidget(
+                  location: weather.location,
+                  condition: condition,
+                  isDay: weather.current.isDay,
+                  isRefreshing: isRefreshing,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
