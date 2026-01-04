@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/weather_codes.dart';
 import '../../core/theme/weather_theme.dart';
-import 'weather_particles/weather_particles_overlay.dart';
 
 /// Animated gradient background that changes based on weather condition.
 class WeatherBackground extends StatelessWidget {
@@ -52,22 +51,9 @@ class WeatherScaffold extends StatelessWidget {
       extendBodyBehindAppBar: true,
       body: WeatherBackground(
         theme: theme,
-        child: Stack(
-          children: [
-            // Particle effects layer
-            if (condition != null)
-              Positioned.fill(
-                child: WeatherParticlesOverlay(
-                  condition: condition!,
-                  isDay: isDay,
-                ),
-              ),
-            // Content layer
-            SafeArea(
-              bottom: false,
-              child: child,
-            ),
-          ],
+        child: SafeArea(
+          bottom: false,
+          child: child,
         ),
       ),
     );

@@ -5,6 +5,7 @@ import '../../core/constants/weather_codes.dart';
 import '../../core/theme/weather_theme.dart';
 import '../../data/models/weather.dart';
 import '../../data/services/landmark_service.dart';
+import 'weather_particles/weather_particles_overlay.dart';
 
 /// Displays a city landmark image with floating animation and weather-based lighting.
 /// Falls back to regional/climate-based generic landmarks when city-specific
@@ -87,32 +88,42 @@ class _LandmarkWidgetState extends State<LandmarkWidget>
     Widget landmark = SizedBox(
       width: screenWidth,
       height: screenWidth * 0.75,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Soft ambient glow behind landmark
-          Positioned(
-            bottom: 0,
-            child: Container(
-              width: screenWidth * 0.8,
-              height: 100,
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [
-                    overlayColor.withValues(alpha: 0.35),
-                    overlayColor.withValues(alpha: 0.1),
-                    overlayColor.withValues(alpha: 0.0),
-                  ],
-                  stops: const [0.0, 0.5, 1.0],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Soft ambient glow behind landmark
+            Positioned(
+              bottom: 0,
+              child: Container(
+                width: screenWidth * 0.8,
+                height: 100,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      overlayColor.withValues(alpha: 0.35),
+                      overlayColor.withValues(alpha: 0.1),
+                      overlayColor.withValues(alpha: 0.0),
+                    ],
+                    stops: const [0.0, 0.5, 1.0],
+                  ),
                 ),
               ),
             ),
-          ),
-          // Landmark image with weather-based color overlay
-          _assetPath != null && _assetExists
-              ? _buildLandmarkImage(overlayColor, theme, screenWidth)
-              : _buildFallbackPlaceholder(theme, screenWidth),
-        ],
+            // Landmark image with weather-based color overlay
+            _assetPath != null && _assetExists
+                ? _buildLandmarkImage(overlayColor, theme, screenWidth)
+                : _buildFallbackPlaceholder(theme, screenWidth),
+            // Weather particle effects (rain, snow, etc.)
+            Positioned.fill(
+              child: WeatherParticlesOverlay(
+                condition: widget.condition,
+                isDay: widget.isDay,
+              ),
+            ),
+          ],
+        ),
       ),
     );
 
