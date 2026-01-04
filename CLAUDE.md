@@ -155,3 +155,44 @@ dart run build_runner build --delete-conflicting-outputs
 1. Phase 4 planning (if applicable)
 2. App store preparation
 3. Testing on physical devices
+
+### 2026-01-04 (Session 4)
+**Completed:**
+- Phase 3.5: UI Redesign based on design review
+  - Stats grid: Removed glassmorphism cards for flat design
+  - Layout: Moved hourly/daily forecasts to DraggableScrollableSheet
+  - Hero section: Temperature overlays on landmark image (Stack layout)
+  - Landmark: Stretches to fill container with BoxFit.cover
+  - Typography: Poppins font for hero stats (96px temp, consistent family)
+  - Semi-transparent pill backgrounds for all stat widgets
+
+- Accessibility & Special Effects:
+  - Added `AccessibilityHelper` with reduced motion detection
+  - Added `WeatherHaptics` for haptic feedback (refresh, condition change, thunder)
+  - Added `FrostOverlay` for extreme cold conditions
+  - Added `ScreenShake` infrastructure for blizzards
+  - Added wind sway animation for landmark
+  - Particles now respect reduced motion preferences
+
+- Style Guide Review Response:
+  - Addressed UI architect's STYLE_GUIDE_REVIEW.md
+  - Corrected reviewer errors about existing animations
+  - Updated compliance score: 52/100 → 70/100
+
+**Commits:**
+- `d39a747` - feat: redesign hero layout with side-by-side temp and landmark cards
+- `4cbb380` - fix: restrict weather particles to landmark widget and reduce temp font
+- `0bbcd5a` - feat: add accessibility features and special weather effects
+- `73b3063` - feat: redesign hero with overlapping temperature on landmark
+
+**Files Created:**
+- `lib/core/utils/accessibility_helper.dart`
+- `lib/presentation/widgets/special_effects/frost_overlay.dart`
+- `lib/presentation/widgets/special_effects/screen_shake.dart`
+- `plans/STYLE_GUIDE_REVIEW.md`
+
+**Next Steps:**
+1. Test on physical devices
+2. Remaining special effects (fog, heat shimmer, rainbow)
+3. Color blind mode accessibility
+4. Phase 4: Backend (if applicable)
