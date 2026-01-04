@@ -83,38 +83,36 @@ class _LandmarkWidgetState extends State<LandmarkWidget>
   Widget build(BuildContext context) {
     final theme = WeatherTheme.fromCondition(widget.condition);
     final overlayColor = _getLightingOverlay();
-    final screenWidth = MediaQuery.of(context).size.width;
 
-    Widget landmark = SizedBox(
-      width: screenWidth,
-      height: screenWidth * 0.75,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Stack(
-          alignment: Alignment.center,
+    // Use LayoutBuilder to fill available space
+    Widget landmark = LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          fit: StackFit.expand,
           children: [
-            // Soft ambient glow behind landmark
+            // Landmark image fills the container
+            _assetPath != null && _assetExists
+                ? _buildLandmarkImage(overlayColor, theme)
+                : _buildFallbackPlaceholder(theme),
+            // Soft ambient glow at bottom
             Positioned(
               bottom: 0,
+              left: 0,
+              right: 0,
+              height: 120,
               child: Container(
-                width: screenWidth * 0.8,
-                height: 100,
                 decoration: BoxDecoration(
-                  gradient: RadialGradient(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
                     colors: [
-                      overlayColor.withValues(alpha: 0.35),
-                      overlayColor.withValues(alpha: 0.1),
+                      overlayColor.withValues(alpha: 0.4),
                       overlayColor.withValues(alpha: 0.0),
                     ],
-                    stops: const [0.0, 0.5, 1.0],
                   ),
                 ),
               ),
             ),
-            // Landmark image with weather-based color overlay
-            _assetPath != null && _assetExists
-                ? _buildLandmarkImage(overlayColor, theme, screenWidth)
-                : _buildFallbackPlaceholder(theme, screenWidth),
             // Weather particle effects (rain, snow, etc.)
             Positioned.fill(
               child: WeatherParticlesOverlay(
@@ -123,8 +121,8 @@ class _LandmarkWidgetState extends State<LandmarkWidget>
               ),
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
 
     // Add spin animation when refreshing
@@ -171,7 +169,7 @@ class _LandmarkWidgetState extends State<LandmarkWidget>
   }
 
   /// Builds the landmark image with weather-based color overlay.
-  Widget _buildLandmarkImage(Color overlayColor, WeatherTheme theme, double screenWidth) {
+  Widget _buildLandmarkImage(Color overlayColor, WeatherTheme theme) {
     return ColorFiltered(
       colorFilter: ColorFilter.mode(
         overlayColor.withValues(alpha: 0.15),
@@ -179,34 +177,33 @@ class _LandmarkWidgetState extends State<LandmarkWidget>
       ),
       child: Image.asset(
         _assetPath!,
-        width: screenWidth,
-        height: screenWidth * 0.75,
-        fit: BoxFit.contain,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
         errorBuilder: (context, error, stackTrace) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               setState(() => _assetExists = false);
             }
           });
-          return _buildFallbackPlaceholder(theme, screenWidth);
+          return _buildFallbackPlaceholder(theme);
         },
       ),
     );
   }
 
   /// Builds a simple placeholder when image loading fails.
-  Widget _buildFallbackPlaceholder(WeatherTheme theme, double screenWidth) {
+  Widget _buildFallbackPlaceholder(WeatherTheme theme) {
     return Container(
-      width: screenWidth * 0.7,
-      height: screenWidth * 0.5,
-      decoration: BoxDecoration(
-        color: theme.textColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Icon(
-        Icons.location_city_rounded,
-        size: screenWidth * 0.25,
-        color: theme.textColor.withValues(alpha: 0.3),
+      width: double.infinity,
+      height: double.infinity,
+      color: theme.textColor.withValues(alpha: 0.1),
+      child: Center(
+        child: Icon(
+          Icons.location_city_rounded,
+          size: 80,
+          color: theme.textColor.withValues(alpha: 0.3),
+        ),
       ),
     );
   }

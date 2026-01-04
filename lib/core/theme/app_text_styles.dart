@@ -14,6 +14,16 @@ class AppTextStyles {
         letterSpacing: -1,
       );
 
+  /// Temperature Hero - 96px, Extra Bold, for overlay on images
+  /// Uses Poppins for thick, readable numbers
+  static TextStyle temperatureHero(Color color) => GoogleFonts.poppins(
+        fontSize: 96,
+        fontWeight: FontWeight.w800,
+        color: color,
+        height: 1.0,
+        letterSpacing: -3,
+      );
+
   /// City Name - 20px, Semibold (600)
   static TextStyle cityName(Color color) => GoogleFonts.inter(
         fontSize: 20,
@@ -22,10 +32,11 @@ class AppTextStyles {
       );
 
   /// Date/Time - 14px, Regular (400), 70% opacity
-  static TextStyle dateTime(Color color) => GoogleFonts.inter(
+  /// Uses Poppins to match temperature hero font
+  static TextStyle dateTime(Color color) => GoogleFonts.poppins(
         fontSize: 14,
         fontWeight: FontWeight.w400,
-        color: color.withOpacity(0.7),
+        color: color.withValues(alpha: 0.7),
       );
 
   /// Weather Labels - 14px, Regular (400), muted
@@ -43,9 +54,10 @@ class AppTextStyles {
       );
 
   /// Weather Description - 16px, Regular
-  static TextStyle weatherDescription(Color color) => GoogleFonts.inter(
+  /// Uses Poppins to match temperature hero font
+  static TextStyle weatherDescription(Color color) => GoogleFonts.poppins(
         fontSize: 16,
-        fontWeight: FontWeight.w400,
+        fontWeight: FontWeight.w500,
         color: color,
       );
 

@@ -238,62 +238,21 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Temperature Card
-          Expanded(
-            flex: 2,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: BorderRadius.circular(32),
-                border: Border.all(
-                  color: theme.textColor.withValues(alpha: 0.1),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${weather.current.temperature.round()}°',
-                    style: AppTextStyles.temperature(theme.textColor),
-                  )
-                      .animate()
-                      .fadeIn(duration: 400.ms)
-                      .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1)),
-                  const SizedBox(height: 8),
-                  Text(
-                    weather.current.description,
-                    style: AppTextStyles.weatherDescription(theme.textColor),
-                  ).animate().fadeIn(delay: 200.ms, duration: 300.ms),
-                  const SizedBox(height: 4),
-                  Text(
-                    'H:${weather.daily.first.temperatureMax.round()}° L:${weather.daily.first.temperatureMin.round()}°',
-                    style: AppTextStyles.dateTime(theme.textColor),
-                  ).animate().fadeIn(delay: 300.ms, duration: 300.ms),
-                ],
-              ),
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(
+            color: theme.textColor.withValues(alpha: 0.1),
+            width: 1,
           ),
-          const SizedBox(width: 12),
-          // Landmark Card
-          Expanded(
-            flex: 3,
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: BorderRadius.circular(32),
-                border: Border.all(
-                  color: theme.textColor.withValues(alpha: 0.1),
-                  width: 1,
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(31),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(31),
+          child: Stack(
+            children: [
+              // Landmark as background (full size)
+              Positioned.fill(
                 child: LandmarkWidget(
                   location: weather.location,
                   condition: condition,
@@ -301,9 +260,63 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                   isRefreshing: isRefreshing,
                 ),
               ),
-            ),
+              // Temperature overlay on top
+              Positioned(
+                left: 20,
+                bottom: 20,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Temperature with background pill
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: theme.gradientColors.first.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Text(
+                        '${weather.current.temperature.round()}°',
+                        style: AppTextStyles.temperatureHero(theme.textColor),
+                      ),
+                    )
+                        .animate()
+                        .fadeIn(duration: 400.ms)
+                        .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1)),
+                    const SizedBox(height: 8),
+                    // Weather description with background pill
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: theme.gradientColors.first.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        weather.current.description,
+                        style: AppTextStyles.weatherDescription(theme.textColor),
+                      ),
+                    ).animate().fadeIn(delay: 200.ms, duration: 300.ms),
+                    const SizedBox(height: 8),
+                    // High/Low with background pill
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: theme.gradientColors.first.withValues(alpha: 0.7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        'H:${weather.daily.first.temperatureMax.round()}° L:${weather.daily.first.temperatureMin.round()}°',
+                        style: AppTextStyles.dateTime(theme.textColor).copyWith(
+                          color: theme.textColor,
+                        ),
+                      ),
+                    ).animate().fadeIn(delay: 300.ms, duration: 300.ms),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
