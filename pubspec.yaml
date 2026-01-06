@@ -60,6 +60,7 @@ flutter:
   assets:
     - assets/images/
     - assets/animations/
+    - assets/animations/weather/
     - assets/landmarks/cities/
     - assets/landmarks/fallbacks/
 

@@ -196,3 +196,96 @@ dart run build_runner build --delete-conflicting-outputs
 2. Remaining special effects (fog, heat shimmer, rainbow)
 3. Color blind mode accessibility
 4. Phase 4: Backend (if applicable)
+
+### 2026-01-06 (Session 5)
+**Completed:**
+- Phase 3.6.1: Tech Stack Alignment - Replace Material Icons
+  - Added `moon` icon for clear night conditions
+  - Added `partlyCloudy` icon with day/night variants (sun/moon peeking behind cloud)
+  - Updated `fromWeatherCode()` to accept `isDay` parameter for day/night icon variants
+  - Replaced Material Icons in `hourly_forecast.dart` with custom `WeatherIcons`
+  - Replaced `Icons.location_city_rounded` fallback in `landmark_widget.dart`
+  - Fixed remaining `withOpacity` deprecation warnings
+
+- Gap Analysis Performed:
+  - Compared Tech Stack page requirements against implementation
+  - Identified remaining gaps: Lottie icons (3.6.2), Rive landmarks (3.6.3)
+  - Added Phase 3.6 to Notion Implementation Plan
+
+- Phase 3.6.2: Animated Weather Icons (Lottie)
+  - Downloaded 9 free Lottie animations from LottieFiles (jochang pack):
+    - sunny, clear_night, partly_cloudy, cloudy_night
+    - rain, snow, thunderstorm, fog, windy
+  - Created `AnimatedWeatherIcon` widget with:
+    - Weather code to animation mapping
+    - Day/night variants
+    - Fallback to static WeatherIcons on error
+  - Added animated icon to hero section (top-right corner, 56px)
+  - Added `WeatherAnimations` helper class for direct asset access
+
+**Files Created:**
+- `lib/presentation/widgets/animated_weather_icon.dart`
+- `assets/animations/weather/*.json` (9 Lottie files)
+
+**Files Modified:**
+- `lib/core/theme/weather_icons.dart` - Added moon, partlyCloudy icons + day/night support
+- `lib/presentation/widgets/hourly_forecast.dart` - Replaced Material Icons
+- `lib/presentation/widgets/landmark_widget.dart` - Replaced fallback icon
+- `lib/presentation/screens/weather_screen.dart` - Added AnimatedWeatherIcon to hero
+- `pubspec.yaml` - Added animations/weather/ asset path
+
+**Session 5 Continued - Phase 5: Premium Features**
+
+- Phase 5.1: Local Favorites System (Free Tier)
+  - Created `FavoriteLocation` model with Hive annotations
+  - Created `FavoritesRepository` interface
+  - Created `HiveFavoritesService` implementation (5 favorites limit for free tier)
+  - Created `FavoritesProvider` with Riverpod StateNotifier
+  - Initialized Hive in `main.dart`
+  - Added heart icon to weather screen header (outline/filled toggle)
+  - Created `heartOutline` and `heartFilled` custom icons in `WeatherIcons`
+
+- Phase 5.2: Favorites Dashboard Page
+  - Created `FavoritesScreen` with grid layout (2 columns)
+  - Created `FavoriteLocationCard` widget with:
+    - Weather gradient backgrounds based on conditions
+    - Animated Lottie weather icons
+    - Temperature and condition display
+    - Loading and error states
+    - Long-press to delete
+  - Created `FavoritesWeatherProvider` with:
+    - 15-minute cache TTL
+    - Parallel weather fetching for all favorites
+    - Real-time updates on favorites changes
+  - Added grid icon navigation to favorites from header
+
+**Files Created:**
+- `lib/data/models/favorite_location.dart`
+- `lib/data/models/favorite_location.g.dart` (manual Hive adapter)
+- `lib/data/repositories/favorites_repository.dart`
+- `lib/data/services/hive_favorites_service.dart`
+- `lib/presentation/providers/favorites_provider.dart`
+- `lib/presentation/providers/favorites_weather_provider.dart`
+- `lib/presentation/screens/favorites_screen.dart`
+- `lib/presentation/widgets/favorite_location_card.dart`
+
+**Files Modified:**
+- `lib/main.dart` - Hive initialization
+- `lib/core/theme/weather_icons.dart` - Added heart, grid icons
+- `lib/presentation/screens/weather_screen.dart` - Added favorites button and navigation
+- `pubspec.yaml` - hive_generator attempted (dependency conflict, manual adapter used)
+
+**Next Steps:**
+1. Phase 5.3: Firebase Auth Setup (requires manual Firebase project setup)
+2. Phase 5.4: Cloud Sync for Pro Users (Firestore)
+3. Phase 5.5: Profile & Settings Page
+4. Phase 5.6: RevenueCat Subscriptions ($2.99/mo, $19.99/yr)
+
+**Pre-requisites for Phase 5.3-5.6:**
+- Create Firebase project at console.firebase.google.com
+- Add iOS/Android apps to Firebase
+- Download GoogleService-Info.plist (iOS) and google-services.json (Android)
+- Enable Authentication providers (Apple, Google)
+- Create Firestore database
+- Create RevenueCat account
+- Set up App Store Connect and Google Play Console subscription products

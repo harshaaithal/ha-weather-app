@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/constants/weather_codes.dart';
+import '../../core/theme/weather_icons.dart';
 import '../../core/theme/weather_theme.dart';
 import '../../data/models/weather.dart';
 import '../../data/services/landmark_service.dart';
@@ -199,8 +200,7 @@ class _LandmarkWidgetState extends State<LandmarkWidget>
       height: double.infinity,
       color: theme.textColor.withValues(alpha: 0.1),
       child: Center(
-        child: Icon(
-          Icons.location_city_rounded,
+        child: WeatherIcons.city(
           size: 80,
           color: theme.textColor.withValues(alpha: 0.3),
         ),

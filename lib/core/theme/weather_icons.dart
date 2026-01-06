@@ -118,6 +118,30 @@ class WeatherIcons {
     );
   }
 
+  /// Heart outline icon for favorites.
+  static Widget heartOutline({double size = 24, required Color color}) {
+    return CustomPaint(
+      size: Size(size, size),
+      painter: _HeartOutlinePainter(color: color),
+    );
+  }
+
+  /// Heart filled icon for favorites.
+  static Widget heartFilled({double size = 24, required Color color}) {
+    return CustomPaint(
+      size: Size(size, size),
+      painter: _HeartFilledPainter(color: color),
+    );
+  }
+
+  /// Grid icon for favorites list.
+  static Widget grid({double size = 24, required Color color}) {
+    return CustomPaint(
+      size: Size(size, size),
+      painter: _GridPainter(color: color),
+    );
+  }
+
   // ============ Weather Condition Icons ============
 
   /// Sun icon for clear weather.
@@ -168,11 +192,36 @@ class WeatherIcons {
     );
   }
 
+  /// Moon icon for clear night.
+  static Widget moon({double size = 24, required Color color}) {
+    return CustomPaint(
+      size: Size(size, size),
+      painter: _MoonPainter(color: color),
+    );
+  }
+
+  /// Partly cloudy icon (cloud with sun/moon peeking).
+  static Widget partlyCloudy({double size = 24, required Color color, bool isDay = true}) {
+    return CustomPaint(
+      size: Size(size, size),
+      painter: _PartlyCloudyPainter(color: color, isDay: isDay),
+    );
+  }
+
   /// Returns appropriate weather icon widget based on WMO weather code.
-  static Widget fromWeatherCode(int code, {double size = 24, required Color color}) {
+  /// If [isDay] is provided, shows day/night variants for clear and partly cloudy.
+  static Widget fromWeatherCode(int code, {double size = 24, required Color color, bool? isDay}) {
     if (code == 0) {
+      // Clear sky
+      if (isDay == false) {
+        return moon(size: size, color: color);
+      }
       return sun(size: size, color: color);
     } else if (code <= 3) {
+      // Partly cloudy (1-3)
+      if (isDay != null) {
+        return partlyCloudy(size: size, color: color, isDay: isDay);
+      }
       return cloud(size: size, color: color);
     } else if (code <= 48) {
       return fog(size: size, color: color);
@@ -793,5 +842,262 @@ class _ThunderstormPainter extends _BaseIconPainter {
     boltPath.lineTo(w * 0.5, h * 0.55);
     boltPath.lineTo(w * 0.55, h * 0.4);
     canvas.drawPath(boltPath, paint);
+  }
+}
+
+class _MoonPainter extends _BaseIconPainter {
+  _MoonPainter({required super.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = strokePaint;
+    final w = size.width;
+    final h = size.height;
+
+    // Crescent moon shape using two overlapping circles
+    final moonPath = Path();
+    final center = Offset(w * 0.45, h * 0.5);
+    final radius = w * 0.35;
+
+    // Outer arc (visible part of moon)
+    moonPath.addArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -math.pi * 0.7,
+      math.pi * 1.4,
+    );
+
+    // Inner arc (shadow cutout) - creates crescent shape
+    final innerCenter = Offset(w * 0.6, h * 0.45);
+    final innerRadius = w * 0.28;
+    moonPath.arcTo(
+      Rect.fromCircle(center: innerCenter, radius: innerRadius),
+      math.pi * 0.7,
+      -math.pi * 1.4,
+      false,
+    );
+
+    canvas.drawPath(moonPath, paint);
+
+    // Small stars around the moon
+    _drawStar(canvas, Offset(w * 0.85, h * 0.25), w * 0.06, paint);
+    _drawStar(canvas, Offset(w * 0.75, h * 0.75), w * 0.04, paint);
+  }
+
+  void _drawStar(Canvas canvas, Offset center, double size, Paint paint) {
+    // Simple 4-point star
+    canvas.drawLine(
+      Offset(center.dx - size, center.dy),
+      Offset(center.dx + size, center.dy),
+      paint,
+    );
+    canvas.drawLine(
+      Offset(center.dx, center.dy - size),
+      Offset(center.dx, center.dy + size),
+      paint,
+    );
+  }
+}
+
+class _PartlyCloudyPainter extends _BaseIconPainter {
+  final bool isDay;
+
+  _PartlyCloudyPainter({required super.color, required this.isDay});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = strokePaint;
+    final w = size.width;
+    final h = size.height;
+
+    if (isDay) {
+      // Sun peeking from behind cloud (top-right)
+      final sunCenter = Offset(w * 0.75, h * 0.25);
+      final sunRadius = w * 0.15;
+      canvas.drawCircle(sunCenter, sunRadius, paint);
+
+      // Sun rays (partial, visible ones)
+      for (var i = 0; i < 5; i++) {
+        final angle = -math.pi * 0.1 + (i * math.pi * 0.25);
+        final innerRadius = sunRadius + w * 0.04;
+        final outerRadius = sunRadius + w * 0.1;
+        canvas.drawLine(
+          Offset(
+            sunCenter.dx + innerRadius * math.cos(angle),
+            sunCenter.dy + innerRadius * math.sin(angle),
+          ),
+          Offset(
+            sunCenter.dx + outerRadius * math.cos(angle),
+            sunCenter.dy + outerRadius * math.sin(angle),
+          ),
+          paint,
+        );
+      }
+    } else {
+      // Moon peeking from behind cloud (top-right)
+      final moonPath = Path();
+      final moonCenter = Offset(w * 0.78, h * 0.22);
+      final moonRadius = w * 0.12;
+
+      moonPath.addArc(
+        Rect.fromCircle(center: moonCenter, radius: moonRadius),
+        -math.pi * 0.5,
+        math.pi * 1.2,
+      );
+
+      final innerCenter = Offset(w * 0.85, h * 0.2);
+      moonPath.arcTo(
+        Rect.fromCircle(center: innerCenter, radius: moonRadius * 0.75),
+        math.pi * 0.7,
+        -math.pi * 1.2,
+        false,
+      );
+
+      canvas.drawPath(moonPath, paint);
+    }
+
+    // Cloud in foreground (larger, lower)
+    final cloudPath = Path();
+    cloudPath.moveTo(w * 0.15, h * 0.7);
+    cloudPath.quadraticBezierTo(w * 0.02, h * 0.7, w * 0.08, h * 0.55);
+    cloudPath.quadraticBezierTo(w * 0.08, h * 0.4, w * 0.25, h * 0.4);
+    cloudPath.quadraticBezierTo(w * 0.32, h * 0.28, w * 0.5, h * 0.32);
+    cloudPath.quadraticBezierTo(w * 0.68, h * 0.28, w * 0.75, h * 0.45);
+    cloudPath.quadraticBezierTo(w * 0.92, h * 0.45, w * 0.9, h * 0.58);
+    cloudPath.quadraticBezierTo(w * 0.92, h * 0.7, w * 0.78, h * 0.7);
+    cloudPath.lineTo(w * 0.15, h * 0.7);
+
+    canvas.drawPath(cloudPath, paint);
+  }
+}
+
+class _HeartOutlinePainter extends _BaseIconPainter {
+  _HeartOutlinePainter({required super.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = strokePaint;
+    final w = size.width;
+    final h = size.height;
+
+    final path = Path();
+    // Heart shape using bezier curves
+    path.moveTo(w * 0.5, h * 0.85);
+    // Left side
+    path.cubicTo(
+      w * 0.15, h * 0.6,
+      w * 0.1, h * 0.25,
+      w * 0.3, h * 0.2,
+    );
+    path.cubicTo(
+      w * 0.4, h * 0.15,
+      w * 0.5, h * 0.25,
+      w * 0.5, h * 0.35,
+    );
+    // Right side
+    path.cubicTo(
+      w * 0.5, h * 0.25,
+      w * 0.6, h * 0.15,
+      w * 0.7, h * 0.2,
+    );
+    path.cubicTo(
+      w * 0.9, h * 0.25,
+      w * 0.85, h * 0.6,
+      w * 0.5, h * 0.85,
+    );
+
+    canvas.drawPath(path, paint);
+  }
+}
+
+class _HeartFilledPainter extends _BaseIconPainter {
+  _HeartFilledPainter({required super.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+    final w = size.width;
+    final h = size.height;
+
+    final path = Path();
+    // Heart shape using bezier curves
+    path.moveTo(w * 0.5, h * 0.85);
+    // Left side
+    path.cubicTo(
+      w * 0.15, h * 0.6,
+      w * 0.1, h * 0.25,
+      w * 0.3, h * 0.2,
+    );
+    path.cubicTo(
+      w * 0.4, h * 0.15,
+      w * 0.5, h * 0.25,
+      w * 0.5, h * 0.35,
+    );
+    // Right side
+    path.cubicTo(
+      w * 0.5, h * 0.25,
+      w * 0.6, h * 0.15,
+      w * 0.7, h * 0.2,
+    );
+    path.cubicTo(
+      w * 0.9, h * 0.25,
+      w * 0.85, h * 0.6,
+      w * 0.5, h * 0.85,
+    );
+
+    canvas.drawPath(path, paint);
+  }
+}
+
+class _GridPainter extends _BaseIconPainter {
+  _GridPainter({required super.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = strokePaint;
+    final w = size.width;
+    final h = size.height;
+
+    // 2x2 grid of rounded rectangles
+    final cornerRadius = w * 0.08;
+    final gap = w * 0.1;
+    final cellSize = (w - gap) / 2 - w * 0.1;
+
+    // Top-left cell
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(w * 0.1, h * 0.1, cellSize, cellSize),
+        Radius.circular(cornerRadius),
+      ),
+      paint,
+    );
+
+    // Top-right cell
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(w * 0.5 + gap / 2, h * 0.1, cellSize, cellSize),
+        Radius.circular(cornerRadius),
+      ),
+      paint,
+    );
+
+    // Bottom-left cell
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(w * 0.1, h * 0.5 + gap / 2, cellSize, cellSize),
+        Radius.circular(cornerRadius),
+      ),
+      paint,
+    );
+
+    // Bottom-right cell
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(w * 0.5 + gap / 2, h * 0.5 + gap / 2, cellSize, cellSize),
+        Radius.circular(cornerRadius),
+      ),
+      paint,
+    );
   }
 }

@@ -10,12 +10,15 @@ import '../../core/utils/accessibility_helper.dart';
 import '../../core/utils/page_transitions.dart';
 import '../../data/models/weather.dart';
 import '../providers/weather_provider.dart';
+import '../providers/favorites_provider.dart';
 import '../widgets/weather_background.dart';
 import '../widgets/stats_grid.dart';
 import '../widgets/hourly_forecast.dart';
 import '../widgets/daily_forecast.dart';
 import '../widgets/landmark_widget.dart';
+import '../widgets/animated_weather_icon.dart';
 import 'city_search_screen.dart';
+import 'favorites_screen.dart';
 
 class WeatherScreen extends ConsumerStatefulWidget {
   const WeatherScreen({super.key});
@@ -197,6 +200,20 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              // Favorites button (toggle)
+              _buildFavoriteButton(weather, theme),
+              // Favorites list button
+              GestureDetector(
+                onTap: () => _openFavorites(),
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: WeatherIcons.grid(
+                    size: 24,
+                    color: theme.textColor.withValues(alpha: 0.8),
+                  ),
+                ),
+              ),
               // Search button - custom tap target instead of Material IconButton
               GestureDetector(
                 onTap: () => _openCitySearch(),
@@ -225,6 +242,72 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
     Navigator.of(context).push(
       FadeSlidePageRoute(page: const CitySearchScreen()),
     );
+  }
+
+  void _openFavorites() {
+    Navigator.of(context).push(
+      FadeSlidePageRoute(page: const FavoritesScreen()),
+    );
+  }
+
+  Widget _buildFavoriteButton(Weather weather, WeatherTheme theme) {
+    final isFavorite = ref.watch(isCurrentLocationFavoriteProvider(weather));
+    final favoritesState = ref.watch(favoritesNotifierProvider);
+
+    return GestureDetector(
+      onTap: () async {
+        final notifier = ref.read(favoritesNotifierProvider.notifier);
+        final success = await notifier.toggleFavorite(weather);
+
+        if (!mounted) return;
+
+        final wasFavorite = isFavorite;
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                wasFavorite
+                    ? 'Removed from favorites'
+                    : 'Added to favorites (${favoritesState.favorites.length + 1}/${favoritesState.maxFavorites})',
+              ),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: theme.gradientColors.last,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          await WeatherHaptics.light();
+        } else if (!wasFavorite && !favoritesState.canAddMore) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Maximum ${favoritesState.maxFavorites} favorites reached. Upgrade to Pro for more!',
+              ),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.orange.shade700,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: isFavorite
+            ? WeatherIcons.heartFilled(
+                size: 24,
+                color: Colors.redAccent,
+              )
+            : WeatherIcons.heartOutline(
+                size: 24,
+                color: theme.textColor.withValues(alpha: 0.8),
+              ),
+      ),
+    ).animate(target: isFavorite ? 1 : 0).scale(
+          begin: const Offset(1, 1),
+          end: const Offset(1.1, 1.1),
+          duration: 150.ms,
+          curve: Curves.easeOut,
+        );
   }
 
   Widget _buildHeroRow(
@@ -259,6 +342,27 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                   isDay: weather.current.isDay,
                   isRefreshing: isRefreshing,
                 ),
+              ),
+              // Animated weather icon in top-right corner
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: theme.gradientColors.first.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: AnimatedWeatherIcon(
+                    weatherCode: weather.current.weatherCode,
+                    isDay: weather.current.isDay,
+                    size: 56,
+                    fallbackColor: theme.textColor,
+                  ),
+                ).animate().fadeIn(delay: 400.ms, duration: 300.ms).scale(
+                      begin: const Offset(0.8, 0.8),
+                      end: const Offset(1, 1),
+                    ),
               ),
               // Temperature overlay on top
               Positioned(

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/weather_icons.dart';
 import '../../data/models/weather.dart';
+import 'animated_weather_icon.dart';
 
 /// 7-day forecast list.
 class DailyForecast extends StatelessWidget {
@@ -79,11 +80,12 @@ class _DailyRow extends StatelessWidget {
               style: AppTextStyles.dailyDay(textColor),
             ),
           ),
-          // Weather icon
-          WeatherIcons.fromWeatherCode(
-            day.weatherCode,
-            size: 24,
-            color: textColor,
+          // Weather icon (animated)
+          AnimatedWeatherIcon(
+            weatherCode: day.weatherCode,
+            isDay: true, // Daily forecast shows daytime conditions
+            size: 28,
+            fallbackColor: textColor,
           ),
           const SizedBox(width: 12),
           // Precipitation probability

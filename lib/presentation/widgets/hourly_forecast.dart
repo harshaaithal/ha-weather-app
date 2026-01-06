@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../data/models/weather.dart';
+import 'animated_weather_icon.dart';
 
 /// Horizontal scrolling hourly forecast.
 class HourlyForecast extends StatelessWidget {
@@ -61,8 +62,8 @@ class _HourlyCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
         color: isFirst
-            ? textColor.withOpacity(0.2)
-            : textColor.withOpacity(0.1),
+            ? textColor.withValues(alpha: 0.2)
+            : textColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(32),
       ),
       child: Column(
@@ -72,10 +73,11 @@ class _HourlyCard extends StatelessWidget {
             timeText,
             style: AppTextStyles.hourlyTime(textColor),
           ),
-          Icon(
-            _getWeatherIcon(hour.weatherCode, hour.isDay),
-            color: textColor,
-            size: 28,
+          AnimatedWeatherIcon(
+            weatherCode: hour.weatherCode,
+            isDay: hour.isDay,
+            size: 32,
+            fallbackColor: textColor,
           ),
           Text(
             '${hour.temperature.round()}°',
@@ -84,26 +86,5 @@ class _HourlyCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  IconData _getWeatherIcon(int code, bool isDay) {
-    // Simplified icon mapping
-    if (code == 0) {
-      return isDay ? Icons.wb_sunny : Icons.nightlight_round;
-    } else if (code <= 3) {
-      return isDay ? Icons.wb_cloudy : Icons.nights_stay;
-    } else if (code <= 48) {
-      return Icons.foggy;
-    } else if (code <= 67) {
-      return Icons.water_drop;
-    } else if (code <= 77) {
-      return Icons.ac_unit;
-    } else if (code <= 82) {
-      return Icons.grain;
-    } else if (code <= 86) {
-      return Icons.ac_unit;
-    } else {
-      return Icons.thunderstorm;
-    }
   }
 }
