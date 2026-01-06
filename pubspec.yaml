@@ -1,5 +1,5 @@
-name: ha_weather_app
-description: "A beautiful weather app with dynamic backgrounds and 3D landmarks."
+name: atmosfair
+description: "Atmosfair - A beautiful weather app with dynamic backgrounds and 3D landmarks."
 publish_to: 'none'
 
 version: 1.0.0+1
