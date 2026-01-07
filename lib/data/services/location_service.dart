@@ -1,5 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart' as geocoding;
+import 'package:dio/dio.dart';
 import '../models/weather.dart';
 
 /// Service for handling device location and reverse geocoding.
@@ -50,6 +51,7 @@ class LocationService {
     String? country;
     String? admin1;
 
+    // Try device geocoding first
     try {
       final placemarks = await geocoding.placemarkFromCoordinates(
         position.latitude,
@@ -58,15 +60,37 @@ class LocationService {
 
       if (placemarks.isNotEmpty) {
         final place = placemarks.first;
-        cityName = place.locality ??
-                   place.subAdministrativeArea ??
-                   place.administrativeArea ??
-                   'Current Location';
+        final name = place.locality ??
+                     place.subAdministrativeArea ??
+                     place.administrativeArea;
+        if (name != null && name.isNotEmpty) {
+          cityName = name;
+        }
         country = place.country;
         admin1 = place.administrativeArea;
       }
     } catch (_) {
-      // Geocoding failed, use default name
+      // Device geocoding failed, will try Open-Meteo fallback
+    }
+
+    // If device geocoding failed, try BigDataCloud reverse geocoding
+    if (cityName == 'Current Location') {
+      try {
+        final result = await _reverseGeocodeWithBigDataCloud(
+          position.latitude,
+          position.longitude,
+        );
+        if (result != null) {
+          final name = result['name'];
+          if (name != null && name.isNotEmpty) {
+            cityName = name;
+          }
+          country = result['country'] ?? country;
+          admin1 = result['admin1'] ?? admin1;
+        }
+      } catch (_) {
+        // BigDataCloud fallback also failed
+      }
     }
 
     return Location(
@@ -76,6 +100,33 @@ class LocationService {
       country: country,
       admin1: admin1,
     );
+  }
+
+  /// Reverse geocode using BigDataCloud's free API (no API key required).
+  Future<Map<String, String>?> _reverseGeocodeWithBigDataCloud(
+    double latitude,
+    double longitude,
+  ) async {
+    final dio = Dio();
+
+    final response = await dio.get(
+      'https://api.bigdatacloud.net/data/reverse-geocode-client',
+      queryParameters: {
+        'latitude': latitude,
+        'longitude': longitude,
+        'localityLanguage': 'en',
+      },
+    );
+
+    if (response.data != null) {
+      final data = response.data;
+      return {
+        'name': data['city'] ?? data['locality'] ?? data['principalSubdivision'],
+        'country': data['countryName'],
+        'admin1': data['principalSubdivision'],
+      };
+    }
+    return null;
   }
 
   /// Gets the last known position (faster, may be stale).
