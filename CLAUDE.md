@@ -289,3 +289,58 @@ dart run build_runner build --delete-conflicting-outputs
 - Create Firestore database
 - Create RevenueCat account
 - Set up App Store Connect and Google Play Console subscription products
+
+### 2026-01-07 (Session 6)
+**Completed:**
+
+- App Branding:
+  - Named the app **Atmosfair** (Atmosphere + Fair weather)
+  - Updated `pubspec.yaml` package name to `atmosfair`
+  - Updated iOS `Info.plist` (CFBundleDisplayName, CFBundleName)
+  - Updated Android `AndroidManifest.xml` label
+  - Updated iOS location permission descriptions
+
+- App Icon:
+  - Generated sun + cloud icon with warm-to-cool gradient (AI-generated via Gemini)
+  - Configured `flutter_launcher_icons` package
+  - Generated all iOS icon sizes (20px to 1024px)
+  - Generated all Android icon densities (mdpi to xxxhdpi)
+  - Configured Android adaptive icon with orange background (#F5B76B)
+
+- Favorites Page Bug Fixes:
+  - Fixed close button to trigger delete confirmation (was non-functional)
+  - Fixed navigation to show selected favorite's weather (was showing current location)
+  - Added `skipInitialFetch` parameter to `WeatherScreen`
+  - Updated `fetchWeather()` to preserve location name
+
+- Android Testing:
+  - Added `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION` permissions to AndroidManifest
+  - Added BigDataCloud reverse geocoding fallback for when device geocoding fails
+  - Tested on Samsung Galaxy S25 Ultra (SM S938B, Android 16)
+
+**Commits:**
+- `a7476a3` - chore: rename app to Atmosfair
+- `c53c7f4` - fix: favorites page delete button and navigation
+- `b200b07` - feat: add Atmosfair app icon
+- `0717a1e` - fix: Android location permissions and reverse geocoding fallback
+
+**Files Created:**
+- `assets/images/app_icon.png`
+- Android adaptive icon files in `android/app/src/main/res/drawable-*/`
+- Android colors.xml for adaptive icon background
+
+**Files Modified:**
+- `pubspec.yaml` - renamed to atmosfair, added flutter_launcher_icons
+- `ios/Runner/Info.plist` - display name, bundle name, permissions
+- `android/app/src/main/AndroidManifest.xml` - label, location permissions
+- `lib/presentation/screens/weather_screen.dart` - skipInitialFetch parameter
+- `lib/presentation/screens/favorites_screen.dart` - navigation fix
+- `lib/presentation/widgets/favorite_location_card.dart` - close button tap handler
+- `lib/presentation/providers/weather_provider.dart` - preserve location name
+- `lib/data/services/location_service.dart` - BigDataCloud reverse geocoding fallback
+- `test/widget_test.dart` - updated import for atmosfair package
+
+**Next Steps:**
+1. Phase 5.3: Firebase Auth Setup (requires manual Firebase project setup)
+2. Phase 5.4-5.6: Cloud Sync, Profile/Settings, RevenueCat
+3. App Store preparation
