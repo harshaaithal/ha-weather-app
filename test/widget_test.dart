@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:ha_weather_app/main.dart';
+import 'package:atmosfair/main.dart';
 
 void main() {
   testWidgets('App loads without error', (WidgetTester tester) async {

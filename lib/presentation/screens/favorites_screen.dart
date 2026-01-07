@@ -5,8 +5,11 @@ import '../../core/theme/app_text_styles.dart';
 import '../../core/theme/weather_icons.dart';
 import '../../core/theme/weather_theme.dart';
 import '../../core/utils/page_transitions.dart';
+import '../../data/models/favorite_location.dart';
+import '../../data/models/weather.dart';
 import '../providers/favorites_provider.dart';
 import '../providers/favorites_weather_provider.dart';
+import '../providers/weather_provider.dart';
 import '../widgets/favorite_location_card.dart';
 import '../widgets/weather_background.dart';
 import 'weather_screen.dart';
@@ -177,13 +180,25 @@ class FavoritesScreen extends ConsumerWidget {
   void _navigateToLocation(
     BuildContext context,
     WidgetRef ref,
-    dynamic favorite,
+    FavoriteLocation favorite,
   ) {
-    // Navigate back to weather screen and fetch weather for this location
-    Navigator.of(context).pushReplacement(
-      FadeSlidePageRoute(page: const WeatherScreen()),
+    // Create Location from favorite and fetch weather
+    final location = Location(
+      latitude: favorite.latitude,
+      longitude: favorite.longitude,
+      name: favorite.name,
+      country: favorite.country,
+      admin1: favorite.admin1,
+      timezone: favorite.timezone,
     );
-    // TODO: Update selected location in weather provider
+
+    // Fetch weather for the selected location
+    ref.read(weatherNotifierProvider.notifier).fetchWeather(location);
+
+    // Navigate back to weather screen (skip initial fetch since we already loaded weather)
+    Navigator.of(context).pushReplacement(
+      FadeSlidePageRoute(page: const WeatherScreen(skipInitialFetch: true)),
+    );
   }
 
   void _deleteFavorite(

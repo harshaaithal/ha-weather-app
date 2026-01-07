@@ -136,19 +136,23 @@ class FavoriteLocationCard extends ConsumerWidget {
                   ],
                 ),
               ),
-              // Delete indicator (shown on long press hint)
+              // Delete button
               Positioned(
                 top: 8,
                 right: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: theme.textColor.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: WeatherIcons.close(
-                    size: 16,
-                    color: theme.textColor.withValues(alpha: 0.6),
+                child: GestureDetector(
+                  onTap: onDelete,
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: theme.textColor.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: WeatherIcons.close(
+                      size: 16,
+                      color: theme.textColor.withValues(alpha: 0.8),
+                    ),
                   ),
                 ),
               ),

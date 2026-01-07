@@ -67,7 +67,13 @@ class WeatherNotifier extends StateNotifier<AsyncValue<Weather?>> {
         longitude: location.longitude,
         timezone: location.timezone,
       );
-      state = AsyncValue.data(weather);
+      // Preserve the location we were given (with proper name)
+      state = AsyncValue.data(Weather(
+        current: weather.current,
+        hourly: weather.hourly,
+        daily: weather.daily,
+        location: location,
+      ));
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }

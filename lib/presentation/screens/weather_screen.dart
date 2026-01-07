@@ -21,7 +21,11 @@ import 'city_search_screen.dart';
 import 'favorites_screen.dart';
 
 class WeatherScreen extends ConsumerStatefulWidget {
-  const WeatherScreen({super.key});
+  /// If true, skip fetching current location weather on startup.
+  /// Used when navigating from favorites or search with pre-loaded weather.
+  final bool skipInitialFetch;
+
+  const WeatherScreen({super.key, this.skipInitialFetch = false});
 
   @override
   ConsumerState<WeatherScreen> createState() => _WeatherScreenState();
@@ -31,10 +35,12 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch weather for current location on startup
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(weatherNotifierProvider.notifier).fetchWeatherForCurrentLocation();
-    });
+    // Fetch weather for current location on startup (unless skipped)
+    if (!widget.skipInitialFetch) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(weatherNotifierProvider.notifier).fetchWeatherForCurrentLocation();
+      });
+    }
   }
 
   @override
